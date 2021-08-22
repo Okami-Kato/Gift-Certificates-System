@@ -1,3 +1,4 @@
 rootProject.name = 'Gift Certificates System'
 include 'entity'
+include 'dao'
 
