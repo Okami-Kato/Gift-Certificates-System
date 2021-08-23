@@ -1,7 +1,7 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.AbstractDao;
-import com.epam.esm.dao.Dao;
+import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.mapper.TagMapper;
 import com.epam.esm.entity.Tag;
 import org.intellij.lang.annotations.Language;
@@ -18,18 +18,20 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Repository
-public class TagDao extends AbstractDao implements Dao<Tag> {
+public class TagDaoImpl extends AbstractDao implements TagDao {
     @Language("SQL")
     private final String SELECT_TAG = "SELECT * FROM tag WHERE id = ?";
     @Language("SQL")
     private final String SELECT_ALL_TAGS = "SELECT * FROM tag";
+    @Language("SQL")
+    private final String SELECT_All_TAGS_BY_CERTIFICATE_ID = "SELECT T.* FROM tag T INNER JOIN certificate_tag CT on T.id = CT.tag_id where certificate_id = ?";
     @Language("SQL")
     private final String DELETE_TAG = "DELETE FROM tag WHERE id = ?";
     @Language("SQL")
     private final String INSERT_TAG = "INSERT INTO tag (name) values (?)";
 
     @Autowired
-    public TagDao(DataSource dataSource) {
+    public TagDaoImpl(DataSource dataSource) {
         super(dataSource);
     }
 
@@ -65,5 +67,10 @@ public class TagDao extends AbstractDao implements Dao<Tag> {
     @Override
     public boolean delete(int id) {
         return jdbcTemplate.update(DELETE_TAG, id) > 0;
+    }
+
+    @Override
+    public List<Tag> getAllByCertificateId(int certificateId) {
+        return jdbcTemplate.query(SELECT_All_TAGS_BY_CERTIFICATE_ID, new TagMapper(), certificateId);
     }
 }

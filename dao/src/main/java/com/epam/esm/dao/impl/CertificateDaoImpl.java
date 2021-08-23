@@ -1,9 +1,10 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.AbstractDao;
-import com.epam.esm.dao.Dao;
+import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.mapper.CertificateMapper;
 import com.epam.esm.entity.Certificate;
+import org.apache.commons.lang3.ArrayUtils;
 import org.intellij.lang.annotations.Language;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -11,14 +12,17 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.sql.Types;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @Repository
-public class CertificateDao extends AbstractDao implements Dao<Certificate> {
+public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     @Language("SQL")
     private final String SELECT_CERTIFICATE = "SELECT * FROM certificate WHERE id = ?";
     @Language("SQL")
@@ -31,9 +35,15 @@ public class CertificateDao extends AbstractDao implements Dao<Certificate> {
     @Language("SQL")
     private final String UPDATE_CERTIFICATE = "UPDATE certificate " +
             "SET name = ?, description = ?, price = ?, duration = ?, create_date = ?, last_update_date = ? WHERE id = ?";
+    @Language("SQL")
+    private final String ADD_TAG = "INSERT INTO certificate_tag values (?, ?)";
+    @Language("SQL")
+    private final String REMOVE_TAG = "DELETE FROM certificate_tag where certificate_id = ? and tag_id = ?";
+    @Language("SQL")
+    private final String SELECT_ALL_BY_TAGS = "SELECT C.* FROM certificate C INNER JOIN certificate_tag CT ON C.id = ct.certificate_id WHERE tag_id IN (%s)";
 
     @Autowired
-    public CertificateDao(DataSource dataSource) {
+    public CertificateDaoImpl(DataSource dataSource) {
         super(dataSource);
     }
 
@@ -82,5 +92,24 @@ public class CertificateDao extends AbstractDao implements Dao<Certificate> {
     @Override
     public boolean delete(int id) {
         return jdbcTemplate.update(DELETE_CERTIFICATE, id) > 0;
+    }
+
+    @Override
+    public boolean addTag(int certificateId, int tagId) {
+        return jdbcTemplate.update(ADD_TAG, certificateId, tagId) > 0;
+    }
+
+    @Override
+    public boolean removeTag(int certificateId, int tagId) {
+        return jdbcTemplate.update(REMOVE_TAG, certificateId, tagId) > 0;
+    }
+
+    @Override
+    public List<Certificate> getAllByTags(Integer... ids) {
+        String inSql = String.join(",", Collections.nCopies(ids.length, "?"));
+
+        return jdbcTemplate.query(
+                String.format(SELECT_ALL_BY_TAGS, inSql),
+                new CertificateMapper(), (Object[]) ids);
     }
 }
