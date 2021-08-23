@@ -1,4 +1,4 @@
 .gradle
 .idea
 entity/build
-repository/build
+dao/build
