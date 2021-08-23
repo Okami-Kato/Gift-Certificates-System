@@ -1,6 +1,5 @@
 package com.epam.esm.dao;
 
-import com.epam.esm.dao.impl.TagDao;
 import com.epam.esm.entity.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {SpringDaoTestConfig.class})
-class TagDaoTest {
+class TagDaoImplTest {
     Tag tag = new Tag("test");
 
     @Autowired
