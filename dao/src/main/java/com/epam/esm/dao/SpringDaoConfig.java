@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource("classpath:database.properties")
-@ComponentScan("com.epam.esm.dao")
+@ComponentScan("com.epam.esm.dao.impl")
 public class SpringDaoConfig {
     @Autowired
     Environment environment;
