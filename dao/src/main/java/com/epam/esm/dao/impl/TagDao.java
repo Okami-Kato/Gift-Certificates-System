@@ -1,5 +1,7 @@
-package com.epam.esm.dao;
+package com.epam.esm.dao.impl;
 
+import com.epam.esm.dao.AbstractDao;
+import com.epam.esm.dao.Dao;
 import com.epam.esm.dao.mapper.TagMapper;
 import com.epam.esm.entity.Tag;
 import org.intellij.lang.annotations.Language;
@@ -13,9 +15,10 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Repository
-public class TagDAO extends AbstractDAO {
+public class TagDao extends AbstractDao implements Dao<Tag> {
     @Language("SQL")
     private final String SELECT_TAG = "SELECT * FROM tag WHERE id = ?";
     @Language("SQL")
@@ -26,22 +29,21 @@ public class TagDAO extends AbstractDAO {
     private final String INSERT_TAG = "INSERT INTO tag (name) values (?)";
 
     @Autowired
-    public TagDAO(DataSource dataSource) {
+    public TagDao(DataSource dataSource) {
         super(dataSource);
     }
 
-    public Tag getEntityById(int id) {
-        return jdbcTemplate.queryForObject(SELECT_TAG, new TagMapper(), id);
+    @Override
+    public Optional<Tag> get(int id) {
+        return Optional.ofNullable(jdbcTemplate.queryForObject(SELECT_TAG, new TagMapper(), id));
     }
 
+    @Override
     public List<Tag> getAll() {
         return jdbcTemplate.query(SELECT_ALL_TAGS, new TagMapper());
     }
 
-    public boolean delete(int id) {
-        return jdbcTemplate.update(DELETE_TAG, id) > 0;
-    }
-
+    @Override
     public Tag create(Tag tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -53,5 +55,15 @@ public class TagDAO extends AbstractDAO {
         }, keyHolder);
         tag.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         return tag;
+    }
+
+    @Override
+    public boolean update(Tag tag) {
+        throw new UnsupportedOperationException("Update operation is not supported for TagDao");
+    }
+
+    @Override
+    public boolean delete(int id) {
+        return jdbcTemplate.update(DELETE_TAG, id) > 0;
     }
 }

@@ -1,5 +1,6 @@
 package com.epam.esm.dao;
 
+import com.epam.esm.dao.impl.CertificateDao;
 import com.epam.esm.entity.Certificate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,13 +10,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {SpringDAOTestConfig.class})
-class CertificateDAOTest {
+@ContextConfiguration(classes = {SpringDaoTestConfig.class})
+class CertificateDaoTest {
 
     Certificate certificate = Certificate.newBuilder()
             .setName("name")
@@ -27,7 +30,7 @@ class CertificateDAOTest {
             .build();
 
     @Autowired
-    CertificateDAO certificateDAO;
+    CertificateDao certificateDAO;
 
     @Test
     @Transactional
@@ -45,12 +48,14 @@ class CertificateDAOTest {
     @Transactional
     void update() {
         certificate = certificateDAO.create(certificate);
-        Certificate oldCertificate = certificateDAO.getEntityById(certificate.getId());
+        Optional<Certificate> oldCertificate = certificateDAO.get(certificate.getId());
+        assertTrue(oldCertificate.isPresent());
         certificate.setName("altered name");
         certificateDAO.update(certificate);
-        Certificate updatedCertificate = certificateDAO.getEntityById(certificate.getId());
+        Optional<Certificate> updatedCertificate = certificateDAO.get(certificate.getId());
+        assertTrue(updatedCertificate.isPresent());
         assertNotEquals(oldCertificate, updatedCertificate);
-        oldCertificate.setName("altered name");
+        oldCertificate.get().setName("altered name");
         assertEquals(oldCertificate, updatedCertificate);
     }
 
@@ -61,7 +66,8 @@ class CertificateDAOTest {
         certificate = certificateDAO.create(certificate);
         int newAmount = certificateDAO.getAll().size();
         assertEquals(oldAmount + 1, newAmount);
-        Certificate dbCertificate = certificateDAO.getEntityById(certificate.getId());
-        assertEquals(certificate, dbCertificate);
+        Optional<Certificate> dbCertificate = certificateDAO.get(certificate.getId());
+        assertTrue(dbCertificate.isPresent());
+        assertEquals(certificate, dbCertificate.get());
     }
 }

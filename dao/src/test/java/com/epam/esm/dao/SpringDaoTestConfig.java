@@ -11,9 +11,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-@Import({SpringDAOConfig.class})
+@Import({SpringDaoConfig.class})
 @EnableTransactionManagement
-public class SpringDAOTestConfig {
+public class SpringDaoTestConfig {
     @Bean
     @Autowired
     public PlatformTransactionManager txManager(DataSource dataSource) {

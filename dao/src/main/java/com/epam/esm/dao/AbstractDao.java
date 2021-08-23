@@ -4,10 +4,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
-public abstract class AbstractDAO {
+public abstract class AbstractDao {
     protected JdbcTemplate jdbcTemplate;
 
-    public AbstractDAO(DataSource dataSource) {
+    public AbstractDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 }

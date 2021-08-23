@@ -1,5 +1,7 @@
-package com.epam.esm.dao;
+package com.epam.esm.dao.impl;
 
+import com.epam.esm.dao.AbstractDao;
+import com.epam.esm.dao.Dao;
 import com.epam.esm.dao.mapper.CertificateMapper;
 import com.epam.esm.entity.Certificate;
 import org.intellij.lang.annotations.Language;
@@ -13,9 +15,10 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Repository
-public class CertificateDAO extends AbstractDAO {
+public class CertificateDao extends AbstractDao implements Dao<Certificate> {
     @Language("SQL")
     private final String SELECT_CERTIFICATE = "SELECT * FROM certificate WHERE id = ?";
     @Language("SQL")
@@ -30,34 +33,21 @@ public class CertificateDAO extends AbstractDAO {
             "SET name = ?, description = ?, price = ?, duration = ?, create_date = ?, last_update_date = ? WHERE id = ?";
 
     @Autowired
-    public CertificateDAO(DataSource dataSource) {
+    public CertificateDao(DataSource dataSource) {
         super(dataSource);
     }
 
-    public Certificate getEntityById(int id) {
-        return jdbcTemplate.queryForObject(SELECT_CERTIFICATE, new CertificateMapper(), id);
+    @Override
+    public Optional<Certificate> get(int id) {
+        return Optional.ofNullable(jdbcTemplate.queryForObject(SELECT_CERTIFICATE, new CertificateMapper(), id));
     }
 
+    @Override
     public List<Certificate> getAll() {
         return jdbcTemplate.query(SELECT_ALL_CERTIFICATES, new CertificateMapper());
     }
 
-    public boolean delete(int id) {
-        return jdbcTemplate.update(DELETE_CERTIFICATE, id) > 0;
-    }
-
-    public boolean update(Certificate certificate) {
-        return jdbcTemplate.update(UPDATE_CERTIFICATE,
-                certificate.getName(),
-                certificate.getDescription(),
-                certificate.getPrice(),
-                certificate.getDuration(),
-                certificate.getCreateDate(),
-                certificate.getLastUpdateDate(),
-                certificate.getId()
-        ) > 0;
-    }
-
+    @Override
     public Certificate create(Certificate certificate) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -74,5 +64,23 @@ public class CertificateDAO extends AbstractDAO {
         }, keyHolder);
         certificate.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         return certificate;
+    }
+
+    @Override
+    public boolean update(Certificate certificate) {
+        return jdbcTemplate.update(UPDATE_CERTIFICATE,
+                certificate.getName(),
+                certificate.getDescription(),
+                certificate.getPrice(),
+                certificate.getDuration(),
+                certificate.getCreateDate(),
+                certificate.getLastUpdateDate(),
+                certificate.getId()
+        ) > 0;
+    }
+
+    @Override
+    public boolean delete(int id) {
+        return jdbcTemplate.update(DELETE_CERTIFICATE, id) > 0;
     }
 }
