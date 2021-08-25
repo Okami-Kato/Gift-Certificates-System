@@ -1,9 +1,9 @@
 package com.epam.esm.entity;
 
 public abstract class Entity {
-    protected int id;
+    protected Integer id;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

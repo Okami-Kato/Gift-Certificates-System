@@ -6,8 +6,8 @@ import java.util.Objects;
 public class Certificate extends Entity {
     private String name;
     private String description;
-    private int price;
-    private int duration;
+    private Integer price;
+    private Integer duration;
     private LocalDate createDate;
     private LocalDate lastUpdateDate;
 
@@ -34,7 +34,7 @@ public class Certificate extends Entity {
         this.description = description;
     }
 
-    public int getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
@@ -42,7 +42,7 @@ public class Certificate extends Entity {
         this.price = price;
     }
 
-    public int getDuration() {
+    public Integer getDuration() {
         return duration;
     }
 
@@ -71,7 +71,7 @@ public class Certificate extends Entity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Certificate that = (Certificate) o;
-        return price == that.price && duration == that.duration && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(createDate, that.createDate) && Objects.equals(lastUpdateDate, that.lastUpdateDate);
+        return Objects.equals(price, that.price) && Objects.equals(duration, that.duration) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(createDate, that.createDate) && Objects.equals(lastUpdateDate, that.lastUpdateDate);
     }
 
     @Override
