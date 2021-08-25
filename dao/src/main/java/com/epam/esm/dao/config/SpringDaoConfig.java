@@ -1,4 +1,4 @@
-package com.epam.esm.dao;
+package com.epam.esm.dao.config;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
