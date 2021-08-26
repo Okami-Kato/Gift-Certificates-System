@@ -2,10 +2,12 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.AbstractDao;
 import com.epam.esm.dao.TagDao;
+import com.epam.esm.dao.mapper.CertificateMapper;
 import com.epam.esm.dao.mapper.TagMapper;
 import com.epam.esm.entity.Tag;
 import org.intellij.lang.annotations.Language;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -37,7 +39,11 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
 
     @Override
     public Optional<Tag> get(int id) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(SELECT_TAG, new TagMapper(), id));
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(SELECT_TAG, new TagMapper(), id));
+        } catch (IncorrectResultSizeDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
