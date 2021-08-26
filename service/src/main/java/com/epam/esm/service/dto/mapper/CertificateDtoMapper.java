@@ -23,13 +23,14 @@ public class CertificateDtoMapper implements DtoMapper<Certificate, CertificateD
 
     @Override
     public CertificateDTO toDto(Certificate entity) {
-        CertificateDTO dto = new CertificateDTO();
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-        dto.setPrice(entity.getPrice());
-        dto.setDuration(entity.getDuration());
-        dto.setCreateDate(entity.getCreateDate());
-        dto.setLastUpdateDate(entity.getLastUpdateDate());
+        CertificateDTO dto = CertificateDTO.newBuilder()
+                .setName(entity.getName())
+                .setDescription(entity.getDescription())
+                .setPrice(entity.getPrice())
+                .setDuration(entity.getDuration())
+                .setCreateDate(entity.getCreateDate())
+                .setLastUpdateDate(entity.getLastUpdateDate())
+                .build();
         if (entity.getId() != null)
             dto.setId(entity.getId());
         return dto;

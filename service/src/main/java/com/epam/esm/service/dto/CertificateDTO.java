@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class CertificateDTO extends AbstractDTO {
+    private final List<TagDTO> tagList = new LinkedList<>();
     @NotEmpty
     private String name;
     private String description;
@@ -22,7 +23,12 @@ public class CertificateDTO extends AbstractDTO {
     @NotNull
     private LocalDate lastUpdateDate;
 
-    private List<TagDTO> tagList = new LinkedList<>();
+    private CertificateDTO() {
+    }
+
+    public static CertificateDTO.CertificateDTOBuilder newBuilder() {
+        return new CertificateDTO().new CertificateDTOBuilder();
+    }
 
     public String getName() {
         return name;
@@ -101,5 +107,56 @@ public class CertificateDTO extends AbstractDTO {
                 ", lastUpdateDate=" + lastUpdateDate +
                 ", tagList=" + tagList +
                 '}';
+    }
+
+    public class CertificateDTOBuilder {
+        private CertificateDTOBuilder() {
+        }
+
+        public CertificateDTOBuilder setId(int id) {
+            CertificateDTO.this.setId(id);
+            return this;
+        }
+
+        public CertificateDTOBuilder setName(String name) {
+            CertificateDTO.this.setName(name);
+            return this;
+        }
+
+        public CertificateDTOBuilder setDescription(String description) {
+            CertificateDTO.this.setDescription(description);
+            return this;
+        }
+
+        public CertificateDTOBuilder setPrice(int price) {
+            CertificateDTO.this.setPrice(price);
+            return this;
+        }
+
+        public CertificateDTOBuilder setDuration(int duration) {
+            CertificateDTO.this.setDuration(duration);
+            return this;
+        }
+
+        public CertificateDTOBuilder setCreateDate(LocalDate createDate) {
+            CertificateDTO.this.setCreateDate(createDate);
+            return this;
+        }
+
+        public CertificateDTOBuilder setLastUpdateDate(LocalDate updateDate) {
+            CertificateDTO.this.setLastUpdateDate(updateDate);
+            return this;
+        }
+
+        public CertificateDTO build() {
+            CertificateDTO certificate = new CertificateDTO();
+            certificate.setName(name);
+            certificate.setDescription(description);
+            certificate.setPrice(price);
+            certificate.setDuration(duration);
+            certificate.setCreateDate(createDate);
+            certificate.setLastUpdateDate(lastUpdateDate);
+            return certificate;
+        }
     }
 }
