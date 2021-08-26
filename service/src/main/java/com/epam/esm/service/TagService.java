@@ -3,9 +3,10 @@ package com.epam.esm.service;
 import com.epam.esm.service.dto.TagDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TagService {
-    TagDTO get(int id);
+    Optional<TagDTO> get(int id);
 
     List<TagDTO> getAll();
 
