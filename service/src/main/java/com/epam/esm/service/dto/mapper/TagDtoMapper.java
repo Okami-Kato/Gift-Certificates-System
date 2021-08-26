@@ -8,8 +8,7 @@ import org.springframework.stereotype.Component;
 public class TagDtoMapper implements DtoMapper<Tag, TagDTO> {
     @Override
     public Tag toEntity(TagDTO dto) {
-        Tag entity = new Tag();
-        entity.setName(dto.getName());
+        Tag entity = new Tag(dto.getName());
         if (dto.getId() != null)
             entity.setId(dto.getId());
         return entity;
