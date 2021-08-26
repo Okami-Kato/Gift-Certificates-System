@@ -4,18 +4,16 @@ import com.epam.esm.dao.AbstractDao;
 import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.mapper.CertificateMapper;
 import com.epam.esm.entity.Certificate;
-import org.apache.commons.lang3.ArrayUtils;
 import org.intellij.lang.annotations.Language;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -40,7 +38,11 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     @Language("SQL")
     private final String REMOVE_TAG = "DELETE FROM certificate_tag where certificate_id = ? and tag_id = ?";
     @Language("SQL")
-    private final String SELECT_ALL_BY_TAGS = "SELECT C.* FROM certificate C INNER JOIN certificate_tag CT ON C.id = ct.certificate_id WHERE tag_id IN (%s)";
+    private final String SELECT_ALL_BY_TAGS = "SELECT DISTINCT C.* FROM certificate C INNER JOIN certificate_tag CT ON C.id = ct.certificate_id WHERE tag_id IN (%s)";
+    @Language("SQL")
+    private final String SELECT_ALL_BY_NAME_PART = "SELECT C.* FROM certificate C WHERE name LIKE ?";
+    @Language("SQL")
+    private final String SELECT_ALL_BY_DESCRIPTION_PART = "SELECT C.* FROM certificate C WHERE description LIKE ?";
 
     @Autowired
     public CertificateDaoImpl(DataSource dataSource) {
@@ -49,7 +51,11 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
 
     @Override
     public Optional<Certificate> get(int id) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(SELECT_CERTIFICATE, new CertificateMapper(), id));
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(SELECT_CERTIFICATE, new CertificateMapper(), id));
+        } catch (IncorrectResultSizeDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -92,6 +98,16 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     @Override
     public boolean delete(int id) {
         return jdbcTemplate.update(DELETE_CERTIFICATE, id) > 0;
+    }
+
+    @Override
+    public List<Certificate> getAllByNamePart(String namePart) {
+        return jdbcTemplate.query(SELECT_ALL_BY_NAME_PART, new CertificateMapper(), "%" + namePart + "%");
+    }
+
+    @Override
+    public List<Certificate> getAllByDescriptionPart(String descriptionPart) {
+        return jdbcTemplate.query(SELECT_ALL_BY_DESCRIPTION_PART, new CertificateMapper(), "%" + descriptionPart + "%");
     }
 
     @Override
