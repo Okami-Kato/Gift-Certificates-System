@@ -10,6 +10,10 @@ public interface CertificateService {
 
     List<CertificateDTO> getAll();
 
+    List<CertificateDTO> getAllByNamePart(String namePart);
+
+    List<CertificateDTO> getAllByDescriptionPart(String descriptionPart);
+
     CertificateDTO create(CertificateDTO certificate);
 
     boolean delete(int id);

@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class CertificateServiceImpl implements CertificateService {
-    private CertificateDao certificateDao;
-    private TagDao tagDao;
-    private DtoMapper<Certificate, CertificateDTO> certificateDtoMapper;
-    private DtoMapper<Tag, TagDTO> tagDtoMapper;
+    private final CertificateDao certificateDao;
+    private final TagDao tagDao;
+    private final DtoMapper<Certificate, CertificateDTO> certificateDtoMapper;
+    private final DtoMapper<Tag, TagDTO> tagDtoMapper;
 
     @Autowired
     public CertificateServiceImpl(CertificateDao certificateDao,
@@ -39,7 +39,7 @@ public class CertificateServiceImpl implements CertificateService {
     public Optional<CertificateDTO> get(int id) {
         Optional<Certificate> certificate = certificateDao.get(id);
         List<TagDTO> tagList = tagDao.getAllByCertificateId(id).stream()
-                .map(value -> tagDtoMapper.toDto(value))
+                .map(tagDtoMapper::toDto)
                 .collect(Collectors.toList());
         return certificate.map(value -> {
             CertificateDTO dto = certificateDtoMapper.toDto(value);
@@ -52,12 +52,26 @@ public class CertificateServiceImpl implements CertificateService {
     public List<CertificateDTO> getAll() {
         return certificateDao.getAll().stream().map(value -> {
             List<TagDTO> tagList = tagDao.getAllByCertificateId(value.getId()).stream()
-                    .map(tag -> tagDtoMapper.toDto(tag))
+                    .map(tagDtoMapper::toDto)
                     .collect(Collectors.toList());
             CertificateDTO dto = certificateDtoMapper.toDto(value);
             dto.getTagList().addAll(tagList);
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CertificateDTO> getAllByNamePart(String namePart) {
+        return certificateDao.getAllByNamePart(namePart).stream()
+                .map(certificateDtoMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CertificateDTO> getAllByDescriptionPart(String descriptionPart) {
+        return certificateDao.getAllByDescriptionPart(descriptionPart).stream()
+                .map(certificateDtoMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
