@@ -22,15 +22,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ContextConfiguration(classes = {DaoTestConfiguration.class})
 class TagDaoImplTest {
     private static final Certificate CERTIFICATE = Certificate.newBuilder()
-            .setName("name1")
-            .setDescription("duration")
+            .setName("certificate")
+            .setDescription("description")
             .setDuration(10)
             .setPrice(5)
             .setCreateDate(LocalDate.now())
             .setLastUpdateDate(LocalDate.now())
             .build();
-    private static final Tag FIRST_TAG = new Tag("test1");
-    private static final Tag SECOND_TAG = new Tag("test2");
+    private static final Tag FIRST_TAG = new Tag("tag1");
+    private static final Tag SECOND_TAG = new Tag("tag2");
 
     @Autowired
     TagDao tagDao;
