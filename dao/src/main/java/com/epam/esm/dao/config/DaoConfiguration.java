@@ -15,16 +15,19 @@ import javax.sql.DataSource;
 @Configuration
 @PropertySource("classpath:database.properties")
 @ComponentScan("com.epam.esm.dao.impl")
-public class SpringDaoConfig {
-    @Autowired
-    Environment environment;
-
+public class DaoConfiguration {
     private final String DRIVER = "driver";
     private final String URL = "url";
     private final String USER = "user";
     private final String PASSWORD = "password";
     private final String MIN_IDLE = "minIdle";
     private final String MAX_IDLE = "maxIdle";
+    private final Environment environment;
+
+    @Autowired
+    DaoConfiguration(Environment environment) {
+        this.environment = environment;
+    }
 
     @Bean
     public DataSource dataSource() {

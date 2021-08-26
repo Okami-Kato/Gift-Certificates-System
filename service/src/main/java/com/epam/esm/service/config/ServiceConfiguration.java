@@ -1,6 +1,6 @@
 package com.epam.esm.service.config;
 
-import com.epam.esm.dao.config.SpringDaoConfig;
+import com.epam.esm.dao.config.DaoConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -14,9 +14,9 @@ import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan({"com.epam.esm.service.impl", "com.epam.esm.service.dto.mapper"})
-@Import({SpringDaoConfig.class})
+@Import({DaoConfiguration.class})
 @EnableTransactionManagement
-public class SpringServiceConfig {
+public class ServiceConfiguration {
     @Bean
     @Autowired
     public PlatformTransactionManager txManager(DataSource dataSource) {

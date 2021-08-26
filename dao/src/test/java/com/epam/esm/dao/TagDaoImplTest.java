@@ -1,5 +1,6 @@
 package com.epam.esm.dao;
 
+import com.epam.esm.dao.config.DaoTestConfiguration;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {SpringDaoTestConfig.class})
+@ContextConfiguration(classes = {DaoTestConfiguration.class})
 class TagDaoImplTest {
     private static final Certificate CERTIFICATE = Certificate.newBuilder()
             .setName("name1")
