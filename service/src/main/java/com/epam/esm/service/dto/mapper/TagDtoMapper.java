@@ -16,8 +16,7 @@ public class TagDtoMapper implements DtoMapper<Tag, TagDTO> {
 
     @Override
     public TagDTO toDto(Tag entity) {
-        TagDTO dto = new TagDTO();
-        dto.setName(entity.getName());
+        TagDTO dto = new TagDTO(entity.getName());
         if (entity.getId() != null)
             dto.setId(entity.getId());
         return dto;

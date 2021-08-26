@@ -10,6 +10,10 @@ public class TagDTO extends AbstractDTO {
     @Pattern(regexp = "^[a-zA-Z0-9\\s]$")
     private String name;
 
+    public TagDTO(String name) {
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }
