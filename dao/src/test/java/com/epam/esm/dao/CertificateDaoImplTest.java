@@ -5,25 +5,24 @@ import com.epam.esm.entity.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
+@Transactional
 @ContextConfiguration(classes = {SpringDaoTestConfig.class})
-class certificateDaoTest {
-
-    Certificate firstCertificate = Certificate.newBuilder()
+class CertificateDaoImplTest {
+    private static final Certificate FIRST_CERTIFICATE = Certificate.newBuilder()
             .setName("name1")
             .setDescription("duration")
             .setDuration(10)
@@ -31,7 +30,7 @@ class certificateDaoTest {
             .setCreateDate(LocalDate.now())
             .setLastUpdateDate(LocalDate.now())
             .build();
-    Certificate secondCertificate = Certificate.newBuilder()
+    private static final Certificate SECOND_CERTIFICATE = Certificate.newBuilder()
             .setName("name2")
             .setDescription("duration")
             .setDuration(10)
@@ -39,17 +38,9 @@ class certificateDaoTest {
             .setCreateDate(LocalDate.now())
             .setLastUpdateDate(LocalDate.now())
             .build();
-    Certificate thirdCertificate = Certificate.newBuilder()
-            .setName("name3")
-            .setDescription("duration")
-            .setDuration(10)
-            .setPrice(5)
-            .setCreateDate(LocalDate.now())
-            .setLastUpdateDate(LocalDate.now())
-            .build();
 
-    Tag firstTag = new Tag("test1");
-    Tag secondTag = new Tag("test2");
+    private static final Tag FIRST_TAG = new Tag("test1");
+    private static final Tag SECOND_TAG = new Tag("test2");
 
     @Autowired
     CertificateDao certificateDao;
@@ -58,64 +49,41 @@ class certificateDaoTest {
     TagDao tagDao;
 
     @Test
-    @Transactional
     void delete() {
-        int oldAmount = certificateDao.getAll().size();
-        firstCertificate = certificateDao.create(firstCertificate);
-        int newAmount = certificateDao.getAll().size();
-        assertEquals(oldAmount + 1, newAmount);
-        assertTrue(certificateDao.delete(firstCertificate.getId()));
-        assertFalse(certificateDao.delete(firstCertificate.getId()));
-        int afterDeleteAmount = certificateDao.getAll().size();
-        assertEquals(afterDeleteAmount, oldAmount);
+        int generatedId = certificateDao.create(FIRST_CERTIFICATE).getId();
+        assertTrue(certificateDao.get(generatedId).isPresent());
+        assertTrue(certificateDao.delete(generatedId));
+        assertFalse(certificateDao.get(generatedId).isPresent());
     }
 
     @Test
-    @Transactional
     void update() {
-        firstCertificate = certificateDao.create(firstCertificate);
-        Optional<Certificate> oldCertificate = certificateDao.get(firstCertificate.getId());
-        assertTrue(oldCertificate.isPresent());
-        firstCertificate.setName("altered name");
-        assertTrue(certificateDao.update(firstCertificate));
-        Optional<Certificate> updatedCertificate = certificateDao.get(firstCertificate.getId());
+        Certificate certificate = certificateDao.create(FIRST_CERTIFICATE);
+        certificate.setName("altered name");
+        assertTrue(certificateDao.update(certificate));
+        Optional<Certificate> updatedCertificate = certificateDao.get(certificate.getId());
         assertTrue(updatedCertificate.isPresent());
-        assertNotEquals(oldCertificate, updatedCertificate);
-        oldCertificate.get().setName("altered name");
-        assertEquals(oldCertificate, updatedCertificate);
+        assertEquals(updatedCertificate.get(), certificate);
     }
 
     @Test
-    @Transactional
-    void create() {
-        int oldAmount = certificateDao.getAll().size();
-        firstCertificate = certificateDao.create(firstCertificate);
-        int newAmount = certificateDao.getAll().size();
-        assertEquals(oldAmount + 1, newAmount);
-        Optional<Certificate> dbCertificate = certificateDao.get(firstCertificate.getId());
-        assertTrue(dbCertificate.isPresent());
-        assertEquals(firstCertificate, dbCertificate.get());
-    }
-
-    @Test
-    @Transactional
     void addAndRemoveTag() {
-        firstTag = tagDao.create(firstTag);
-        secondTag = tagDao.create(secondTag);
-        firstCertificate = certificateDao.create(firstCertificate);
-        secondCertificate = certificateDao.create(secondCertificate);
-        thirdCertificate = certificateDao.create(thirdCertificate);
-        int oldSize = certificateDao.getAllByTags(firstTag.getId()).size();
-        assertEquals(oldSize, 0);
-        certificateDao.addTag(firstCertificate.getId(), firstTag.getId());
-        assertThrows(DataAccessException.class, () -> certificateDao.addTag(firstCertificate.getId(), firstTag.getId()));
-        certificateDao.addTag(secondCertificate.getId(), firstTag.getId());
-        certificateDao.addTag(thirdCertificate.getId(), secondTag.getId());
-        int newSize = certificateDao.getAllByTags(firstTag.getId(), secondTag.getId()).size();
-        assertEquals(newSize, 3);
-        certificateDao.removeTag(secondCertificate.getId(), firstTag.getId());
-        assertFalse(certificateDao.removeTag(secondCertificate.getId(), firstTag.getId()));
-        newSize = certificateDao.getAllByTags(firstTag.getId(), secondTag.getId()).size();
-        assertEquals(newSize, 2);
+        Integer firstTagId = tagDao.create(FIRST_TAG).getId();
+        Integer secondTagId = tagDao.create(SECOND_TAG).getId();
+        Certificate firstCertificate = certificateDao.create(FIRST_CERTIFICATE);
+        Certificate secondCertificate = certificateDao.create(SECOND_CERTIFICATE);
+
+        certificateDao.addTag(firstCertificate.getId(), firstTagId);
+        certificateDao.addTag(firstCertificate.getId(), secondTagId);
+        certificateDao.addTag(secondCertificate.getId(), firstTagId);
+
+        List<Certificate> allByTags = certificateDao.getAllByTags(firstTagId, secondTagId);
+        assertEquals(2, allByTags.size());
+        assertTrue(allByTags.containsAll(Arrays.asList(firstCertificate, secondCertificate)));
+
+        certificateDao.removeTag(secondCertificate.getId(), firstTagId);
+        allByTags = certificateDao.getAllByTags(firstTagId, secondTagId);
+        assertEquals(1, allByTags.size());
+        assertTrue(allByTags.contains(firstCertificate));
     }
 }
