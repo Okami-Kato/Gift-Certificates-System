@@ -67,16 +67,16 @@ public class Certificate extends Entity {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(name, description, price, duration, createDate, lastUpdateDate);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Certificate that = (Certificate) o;
         return Objects.equals(price, that.price) && Objects.equals(duration, that.duration) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(createDate, that.createDate) && Objects.equals(lastUpdateDate, that.lastUpdateDate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, description, price, duration, createDate, lastUpdateDate);
     }
 
     @Override
@@ -92,6 +92,9 @@ public class Certificate extends Entity {
     }
 
     public class CertificateBuilder {
+        private CertificateBuilder() {
+        }
+
         public CertificateBuilder setId(int id) {
             Certificate.this.setId(id);
             return this;
