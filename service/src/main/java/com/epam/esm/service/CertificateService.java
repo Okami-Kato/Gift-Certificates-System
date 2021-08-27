@@ -14,6 +14,8 @@ public interface CertificateService {
 
     List<CertificateDTO> getAllByDescriptionPart(String descriptionPart);
 
+    List<CertificateDTO> getAllByTags(Integer... ids);
+
     CertificateDTO create(CertificateDTO certificate);
 
     boolean delete(int id);

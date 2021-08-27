@@ -50,28 +50,23 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<CertificateDTO> getAll() {
-        return certificateDao.getAll().stream().map(value -> {
-            List<TagDTO> tagList = tagDao.getAllByCertificateId(value.getId()).stream()
-                    .map(tagDtoMapper::toDto)
-                    .collect(Collectors.toList());
-            CertificateDTO dto = certificateDtoMapper.toDto(value);
-            dto.getTagList().addAll(tagList);
-            return dto;
-        }).collect(Collectors.toList());
+        return fillTagLists(certificateDao.getAll());
     }
 
     @Override
     public List<CertificateDTO> getAllByNamePart(String namePart) {
-        return certificateDao.getAllByNamePart(namePart).stream()
-                .map(certificateDtoMapper::toDto)
-                .collect(Collectors.toList());
+        return fillTagLists(certificateDao.getAllByNamePart(namePart));
+
     }
 
     @Override
     public List<CertificateDTO> getAllByDescriptionPart(String descriptionPart) {
-        return certificateDao.getAllByDescriptionPart(descriptionPart).stream()
-                .map(certificateDtoMapper::toDto)
-                .collect(Collectors.toList());
+        return fillTagLists(certificateDao.getAllByDescriptionPart(descriptionPart));
+    }
+
+    @Override
+    public List<CertificateDTO> getAllByTags(Integer... ids) {
+        return fillTagLists(certificateDao.getAllByTags(ids));
     }
 
     @Override
@@ -102,5 +97,16 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public boolean removeTag(int certificateId, int tagId) {
         return certificateDao.removeTag(certificateId, tagId);
+    }
+
+    private List<CertificateDTO> fillTagLists(List<Certificate> certificateList){
+        return certificateList.stream().map(value -> {
+            List<TagDTO> tagList = tagDao.getAllByCertificateId(value.getId()).stream()
+                    .map(tagDtoMapper::toDto)
+                    .collect(Collectors.toList());
+            CertificateDTO dto = certificateDtoMapper.toDto(value);
+            dto.getTagList().addAll(tagList);
+            return dto;
+        }).collect(Collectors.toList());
     }
 }
