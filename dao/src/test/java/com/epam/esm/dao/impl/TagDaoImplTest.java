@@ -1,5 +1,7 @@
-package com.epam.esm.dao;
+package com.epam.esm.dao.impl;
 
+import com.epam.esm.dao.CertificateDao;
+import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.config.DaoTestConfiguration;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
