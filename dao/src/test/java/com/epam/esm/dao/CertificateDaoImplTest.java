@@ -24,24 +24,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ContextConfiguration(classes = {DaoTestConfiguration.class})
 class CertificateDaoImplTest {
     private static final Certificate FIRST_CERTIFICATE = Certificate.newBuilder()
-            .setName("name1")
-            .setDescription("duration")
+            .setName("certificate1")
+            .setDescription("description1")
             .setDuration(10)
             .setPrice(5)
             .setCreateDate(LocalDate.now())
             .setLastUpdateDate(LocalDate.now())
             .build();
     private static final Certificate SECOND_CERTIFICATE = Certificate.newBuilder()
-            .setName("name2")
-            .setDescription("duration")
+            .setName("certificate2")
+            .setDescription("description2")
             .setDuration(10)
             .setPrice(5)
             .setCreateDate(LocalDate.now())
             .setLastUpdateDate(LocalDate.now())
             .build();
 
-    private static final Tag FIRST_TAG = new Tag("test1");
-    private static final Tag SECOND_TAG = new Tag("test2");
+    private static final Tag FIRST_TAG = new Tag("tag1");
+    private static final Tag SECOND_TAG = new Tag("tag2");
 
     @Autowired
     CertificateDao certificateDao;
@@ -60,11 +60,24 @@ class CertificateDaoImplTest {
     @Test
     void update() {
         Certificate certificate = certificateDao.create(FIRST_CERTIFICATE);
-        certificate.setName("altered name");
+        certificate.setDuration(certificate.getDuration() + 5);
         assertTrue(certificateDao.update(certificate));
         Optional<Certificate> updatedCertificate = certificateDao.get(certificate.getId());
         assertTrue(updatedCertificate.isPresent());
         assertEquals(updatedCertificate.get(), certificate);
+    }
+
+    @Test
+    void getByPart(){
+        certificateDao.create(FIRST_CERTIFICATE);
+        certificateDao.create(SECOND_CERTIFICATE);
+        assertEquals(2, certificateDao.getAllByNamePart("certificate").size());
+        assertEquals(1, certificateDao.getAllByNamePart("certificate1").size());
+        assertEquals(0, certificateDao.getAllByNamePart("certificatee").size());
+
+        assertEquals(2, certificateDao.getAllByDescriptionPart("description").size());
+        assertEquals(1, certificateDao.getAllByDescriptionPart("description1").size());
+        assertEquals(0, certificateDao.getAllByDescriptionPart("descriptionn").size());
     }
 
     @Test
