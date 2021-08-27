@@ -14,6 +14,11 @@ public class TagDTO extends AbstractDTO {
         this.name = name;
     }
 
+    public TagDTO(Integer id, String name) {
+        super(id);
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }
