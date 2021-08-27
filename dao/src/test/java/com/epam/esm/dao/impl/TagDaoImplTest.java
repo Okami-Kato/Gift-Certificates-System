@@ -54,11 +54,10 @@ class TagDaoImplTest {
     void getAllByCertificateId() {
         Tag firstTag = tagDao.create(FIRST_TAG);
         Tag secondTag = tagDao.create(SECOND_TAG);
+        assertEquals(tagDao.getAll(), Arrays.asList(firstTag, secondTag));
         int certificateId = certificateDao.create(CERTIFICATE).getId();
         certificateDao.addTag(certificateId, firstTag.getId());
         certificateDao.addTag(certificateId, secondTag.getId());
-        List<Tag> allByCertificateId = tagDao.getAllByCertificateId(certificateId);
-        assertEquals(2, allByCertificateId.size());
-        assertTrue(allByCertificateId.containsAll(Arrays.asList(firstTag, secondTag)));
+        assertEquals(Arrays.asList(firstTag, secondTag), tagDao.getAllByCertificateId(certificateId));
     }
 }

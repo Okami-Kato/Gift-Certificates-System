@@ -6,6 +6,7 @@ import com.epam.esm.dao.mapper.CertificateMapper;
 import com.epam.esm.dao.mapper.TagMapper;
 import com.epam.esm.entity.Tag;
 import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -52,7 +53,7 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
     }
 
     @Override
-    public Tag create(Tag tag) {
+    public Tag create(@NotNull Tag tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {

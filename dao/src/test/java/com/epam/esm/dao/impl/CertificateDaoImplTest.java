@@ -94,8 +94,7 @@ class CertificateDaoImplTest {
         certificateDao.addTag(secondCertificate.getId(), firstTagId);
 
         List<Certificate> allByTags = certificateDao.getAllByTags(firstTagId, secondTagId);
-        assertEquals(2, allByTags.size());
-        assertTrue(allByTags.containsAll(Arrays.asList(firstCertificate, secondCertificate)));
+        assertEquals(Arrays.asList(firstCertificate, secondCertificate), allByTags);
 
         certificateDao.removeTag(secondCertificate.getId(), firstTagId);
         allByTags = certificateDao.getAllByTags(firstTagId, secondTagId);
