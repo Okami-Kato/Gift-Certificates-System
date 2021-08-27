@@ -5,12 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
 public class CertificateDTO extends AbstractDTO {
-    private final List<TagDTO> tagList = new LinkedList<>();
+    private List<TagDTO> tagList = new LinkedList<>();
     @NotEmpty
     private String name;
     private String description;
@@ -82,6 +83,10 @@ public class CertificateDTO extends AbstractDTO {
         return tagList;
     }
 
+    public void setTagList(List<TagDTO> tagList) {
+        this.tagList = tagList;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(name, description, price, duration, createDate, lastUpdateDate);
@@ -148,14 +153,21 @@ public class CertificateDTO extends AbstractDTO {
             return this;
         }
 
+        public CertificateDTOBuilder setTags(TagDTO... tags) {
+            CertificateDTO.this.setTagList(Arrays.asList(tags));
+            return this;
+        }
+
         public CertificateDTO build() {
             CertificateDTO certificate = new CertificateDTO();
+            certificate.setId(id);
             certificate.setName(name);
             certificate.setDescription(description);
             certificate.setPrice(price);
             certificate.setDuration(duration);
             certificate.setCreateDate(createDate);
             certificate.setLastUpdateDate(lastUpdateDate);
+            certificate.setTagList(tagList);
             return certificate;
         }
     }
