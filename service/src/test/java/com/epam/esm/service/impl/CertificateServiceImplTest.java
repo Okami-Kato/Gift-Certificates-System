@@ -1,8 +1,9 @@
-package com.epam.esm.service;
+package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.Certificate;
+import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.dto.CertificateDTO;
 import com.epam.esm.service.dto.TagDTO;
 import com.epam.esm.service.dto.mapper.CertificateDtoMapper;
