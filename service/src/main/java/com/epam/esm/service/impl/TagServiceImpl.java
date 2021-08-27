@@ -37,6 +37,11 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    public List<TagDTO> getAllByCertificateId(int certificateId) {
+        return tagDao.getAllByCertificateId(certificateId).stream().map(tagDtoMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
     public TagDTO create(TagDTO tag) {
         Tag result = tagDao.create(tagDtoMapper.toEntity(tag));
         return tagDtoMapper.toDto(result);

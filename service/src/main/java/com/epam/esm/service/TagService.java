@@ -10,6 +10,8 @@ public interface TagService {
 
     List<TagDTO> getAll();
 
+    List<TagDTO> getAllByCertificateId(int certificateId);
+
     TagDTO create(TagDTO tag);
 
     boolean delete(int id);
