@@ -2,6 +2,8 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.AbstractDao;
 import com.epam.esm.dao.CertificateDao;
+import com.epam.esm.dao.Sort;
+import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.dao.mapper.CertificateMapper;
 import com.epam.esm.entity.Certificate;
 import org.intellij.lang.annotations.Language;
@@ -12,10 +14,16 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -43,10 +51,21 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     private final String SELECT_ALL_BY_NAME_PART = "SELECT C.* FROM certificate C WHERE name LIKE ?";
     @Language("SQL")
     private final String SELECT_ALL_BY_DESCRIPTION_PART = "SELECT C.* FROM certificate C WHERE description LIKE ?";
+    private final String TABLE_NAME = "CERTIFICATE";
+    private final List<String> columns = new LinkedList<>();
 
     @Autowired
-    public CertificateDaoImpl(DataSource dataSource) {
+    public CertificateDaoImpl(DataSource dataSource) throws DaoException {
         super(dataSource);
+        try (Connection connection = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection()) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            ResultSet columns = databaseMetaData.getColumns(null, null, TABLE_NAME, null);
+            while (columns.next()) {
+                this.columns.add(columns.getString("COLUMN_NAME").toLowerCase(Locale.ROOT));
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Failed to populate list of columns");
+        }
     }
 
     @Override
@@ -101,6 +120,15 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     }
 
     @Override
+    public List<Certificate> getAll(Sort sort) {
+        for (Sort.Order order : sort.getOrders()) {
+            if (!columnExists(order.getProperty()))
+                throw new IllegalArgumentException(String.format("Column \"%s\" doesn't exist in certificate table", order.getProperty()));
+        }
+        return jdbcTemplate.query(SELECT_ALL_CERTIFICATES.concat(" ").concat(sort.getQuery()), new CertificateMapper());
+    }
+
+    @Override
     public List<Certificate> getAllByNamePart(String namePart) {
         return jdbcTemplate.query(SELECT_ALL_BY_NAME_PART, new CertificateMapper(), "%" + namePart + "%");
     }
@@ -127,5 +155,9 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
         return jdbcTemplate.query(
                 String.format(SELECT_ALL_BY_TAGS, inSql),
                 new CertificateMapper(), (Object[]) ids);
+    }
+
+    private boolean columnExists(String columnName) {
+        return columns.contains(columnName.toLowerCase(Locale.ROOT));
     }
 }
