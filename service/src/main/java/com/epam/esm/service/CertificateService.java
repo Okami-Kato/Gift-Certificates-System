@@ -1,5 +1,6 @@
 package com.epam.esm.service;
 
+import com.epam.esm.dao.Sort;
 import com.epam.esm.service.dto.CertificateDTO;
 
 import java.util.List;
@@ -9,6 +10,8 @@ public interface CertificateService {
     Optional<CertificateDTO> get(int id);
 
     List<CertificateDTO> getAll();
+
+    List<CertificateDTO> getAll(Sort sort);
 
     List<CertificateDTO> getAllByNamePart(String namePart);
 

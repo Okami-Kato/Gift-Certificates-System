@@ -1,6 +1,7 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.CertificateDao;
+import com.epam.esm.dao.Sort;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
@@ -51,6 +52,11 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public List<CertificateDTO> getAll() {
         return fillTagLists(certificateDao.getAll());
+    }
+
+    @Override
+    public List<CertificateDTO> getAll(Sort sort) {
+        return fillTagLists(certificateDao.getAll(sort));
     }
 
     @Override
