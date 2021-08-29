@@ -15,7 +15,7 @@ import javax.sql.DataSource;
 @Configuration
 @PropertySource("classpath:database.properties")
 @ComponentScan("com.epam.esm.dao.impl")
-public class DaoConfiguration {
+public class DaoConfig {
     private final String DRIVER = "driver";
     private final String URL = "url";
     private final String USER = "user";
@@ -25,7 +25,7 @@ public class DaoConfiguration {
     private final Environment environment;
 
     @Autowired
-    DaoConfiguration(Environment environment) {
+    DaoConfig(Environment environment) {
         this.environment = environment;
     }
 
