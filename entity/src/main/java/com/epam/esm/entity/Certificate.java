@@ -132,6 +132,7 @@ public class Certificate extends Entity {
 
         public Certificate build() {
             Certificate certificate = new Certificate();
+            certificate.setId(id);
             certificate.setName(name);
             certificate.setDescription(description);
             certificate.setPrice(price);
