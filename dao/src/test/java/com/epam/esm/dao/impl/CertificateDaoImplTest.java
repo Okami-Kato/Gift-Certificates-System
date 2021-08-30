@@ -49,6 +49,7 @@ class CertificateDaoImplTest {
 
     private static final String NAME_COLUMN = "name";
     private static final String DESCRIPTION_COLUMN = "description";
+    private static final String DURATION_COLUMN = "duration";
 
     @Autowired
     CertificateDao certificateDao;
@@ -132,7 +133,7 @@ class CertificateDaoImplTest {
 
         assertEquals(orderByNameAsc, certificateDao.getAll(Sort.by(Sort.Order.asc(NAME_COLUMN))));
         assertEquals(orderByDescriptionAsc, certificateDao.getAll(Sort.by(Sort.Order.asc(DESCRIPTION_COLUMN))));
-        assertEquals(orderByDurationAsc, certificateDao.getAll(Sort.by(Sort.Order.asc(DESCRIPTION_COLUMN))));
+        assertEquals(orderByDurationAsc, certificateDao.getAll(Sort.by(Sort.Order.asc(DURATION_COLUMN))));
 
         Collections.reverse(orderByNameAsc);
         Collections.reverse(orderByDescriptionAsc);
@@ -140,7 +141,7 @@ class CertificateDaoImplTest {
 
         assertEquals(orderByNameAsc, certificateDao.getAll(Sort.by(Sort.Order.desc(NAME_COLUMN))));
         assertEquals(orderByDescriptionAsc, certificateDao.getAll(Sort.by(Sort.Order.desc(DESCRIPTION_COLUMN))));
-        assertEquals(orderByDurationAsc, certificateDao.getAll(Sort.by(Sort.Order.desc(DESCRIPTION_COLUMN))));
+        assertEquals(orderByDurationAsc, certificateDao.getAll(Sort.by(Sort.Order.desc(DURATION_COLUMN))));
 
         certificateDao.create(forthCertificate);
 
