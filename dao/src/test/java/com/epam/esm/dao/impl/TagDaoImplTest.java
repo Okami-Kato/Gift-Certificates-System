@@ -2,12 +2,13 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.TagDao;
-import com.epam.esm.dao.config.DaoTestConfig;
+import com.epam.esm.dao.config.DaoConfig;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {DaoTestConfig.class})
+@Transactional
+@ActiveProfiles("test")
+@ContextConfiguration(classes = {DaoConfig.class})
 class TagDaoImplTest {
     private static final Certificate CERTIFICATE = Certificate.newBuilder()
             .setName("certificate")

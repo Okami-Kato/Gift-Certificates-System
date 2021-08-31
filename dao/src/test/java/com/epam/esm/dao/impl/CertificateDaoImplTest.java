@@ -3,12 +3,13 @@ package com.epam.esm.dao.impl;
 import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.Sort;
 import com.epam.esm.dao.TagDao;
-import com.epam.esm.dao.config.DaoTestConfig;
+import com.epam.esm.dao.config.DaoConfig;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @Transactional
-@ContextConfiguration(classes = {DaoTestConfig.class})
+@ActiveProfiles("test")
+@ContextConfiguration(classes = {DaoConfig.class})
 class CertificateDaoImplTest {
     private static final Certificate FIRST_CERTIFICATE = Certificate.newBuilder()
             .setName("certificate1")
@@ -76,7 +78,7 @@ class CertificateDaoImplTest {
     }
 
     @Test
-    void getByPart(){
+    void getByPart() {
         certificateDao.create(FIRST_CERTIFICATE);
         certificateDao.create(SECOND_CERTIFICATE);
         assertEquals(2, certificateDao.getAllByNamePart("certificate").size());
@@ -89,7 +91,7 @@ class CertificateDaoImplTest {
     }
 
     @Test
-    void getInOrder(){
+    void getInOrder() {
         Certificate firstCertificate = Certificate.newBuilder()
                 .setName("aaa")
                 .setDescription("bbb")
