@@ -8,7 +8,6 @@ import com.epam.esm.service.dto.CertificateDTO;
 import com.epam.esm.service.dto.TagDTO;
 import com.epam.esm.service.dto.mapper.CertificateDtoMapper;
 import com.epam.esm.service.dto.mapper.TagDtoMapper;
-import com.epam.esm.service.impl.CertificateServiceImpl;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
