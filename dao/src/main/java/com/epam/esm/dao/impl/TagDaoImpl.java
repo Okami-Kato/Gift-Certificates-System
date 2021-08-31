@@ -2,7 +2,6 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.AbstractDao;
 import com.epam.esm.dao.TagDao;
-import com.epam.esm.dao.mapper.CertificateMapper;
 import com.epam.esm.dao.mapper.TagMapper;
 import com.epam.esm.entity.Tag;
 import org.intellij.lang.annotations.Language;
@@ -32,6 +31,8 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
     private final String DELETE_TAG = "DELETE FROM tag WHERE id = ?";
     @Language("SQL")
     private final String INSERT_TAG = "INSERT INTO tag (name) values (?)";
+    @Language("SQL")
+    private final String NAME_EXISTS = "SELECT EXISTS(SELECT * FROM tag WHERE name = ?)";
 
     @Autowired
     public TagDaoImpl(DataSource dataSource) {
@@ -79,5 +80,10 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
     @Override
     public List<Tag> getAllByCertificateId(int certificateId) {
         return jdbcTemplate.query(SELECT_All_TAGS_BY_CERTIFICATE_ID, new TagMapper(), certificateId);
+    }
+
+    @Override
+    public boolean nameExists(String name) {
+        return jdbcTemplate.queryForObject(NAME_EXISTS, Boolean.class, name);
     }
 }
