@@ -81,13 +81,14 @@ public class Certificate extends Entity {
 
     @Override
     public String toString() {
-        return "GiftCertificate{" +
+        return "Certificate{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", duration=" + duration +
                 ", createDate=" + createDate +
-                ", updateDate=" + lastUpdateDate +
+                ", lastUpdateDate=" + lastUpdateDate +
+                ", id=" + id +
                 '}';
     }
 
@@ -132,13 +133,13 @@ public class Certificate extends Entity {
 
         public Certificate build() {
             Certificate certificate = new Certificate();
-            certificate.setId(id);
-            certificate.setName(name);
-            certificate.setDescription(description);
-            certificate.setPrice(price);
-            certificate.setDuration(duration);
-            certificate.setCreateDate(createDate);
-            certificate.setLastUpdateDate(lastUpdateDate);
+            certificate.id = Certificate.this.id;
+            certificate.name = Certificate.this.name;
+            certificate.description = Certificate.this.description;
+            certificate.duration = Certificate.this.duration;
+            certificate.price = Certificate.this.price;
+            certificate.createDate = Certificate.this.createDate;
+            certificate.lastUpdateDate = Certificate.this.lastUpdateDate;
             return certificate;
         }
     }

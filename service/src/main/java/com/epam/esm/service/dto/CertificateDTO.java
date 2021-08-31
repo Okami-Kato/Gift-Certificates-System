@@ -1,8 +1,11 @@
 package com.epam.esm.service.dto;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -12,20 +15,25 @@ import java.util.Objects;
 
 public class CertificateDTO extends AbstractDTO {
     private List<TagDTO> tagList = new LinkedList<>();
-    @NotEmpty
+    @Size(min = 3, max = 50, message = "Certificate name must be {min}-{max} characters long.")
+    @NotBlank(message = "Certificate name must not be blank.")
+    @Pattern(regexp = "^[a-zA-Z0-9\\s]$", message = "Certificate name must be alphanumeric.")
     private String name;
-    private String description;
-    @Positive
-    private int price;
-    @Positive
-    private int duration;
-    @NotNull
-    private LocalDate createDate;
-    @NotNull
-    private LocalDate lastUpdateDate;
 
-    private CertificateDTO() {
-    }
+    @Size(min = 10, max = 3000, message = "Certificate description must be {min}-{max} characters long.")
+    @NotBlank(message = "Certificate description must not be blank.")
+    private String description;
+
+    @Positive(message = "Certificate price must be positive number.")
+    private int price;
+
+    @Positive(message = "Certificate duration must be positive number.")
+    private int duration;
+
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate createDate;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate lastUpdateDate;
 
     public static CertificateDTO.CertificateDTOBuilder newBuilder() {
         return new CertificateDTO().new CertificateDTOBuilder();
@@ -160,14 +168,14 @@ public class CertificateDTO extends AbstractDTO {
 
         public CertificateDTO build() {
             CertificateDTO certificate = new CertificateDTO();
-            certificate.setId(id);
-            certificate.setName(name);
-            certificate.setDescription(description);
-            certificate.setPrice(price);
-            certificate.setDuration(duration);
-            certificate.setCreateDate(createDate);
-            certificate.setLastUpdateDate(lastUpdateDate);
-            certificate.setTagList(tagList);
+            certificate.id = CertificateDTO.this.id;
+            certificate.name = CertificateDTO.this.name;
+            certificate.description = CertificateDTO.this.description;
+            certificate.duration = CertificateDTO.this.duration;
+            certificate.price = CertificateDTO.this.price;
+            certificate.createDate = CertificateDTO.this.createDate;
+            certificate.lastUpdateDate = CertificateDTO.this.lastUpdateDate;
+            certificate.tagList = CertificateDTO.this.tagList;
             return certificate;
         }
     }
