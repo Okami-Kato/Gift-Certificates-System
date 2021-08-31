@@ -40,7 +40,7 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
             "(name, description, price, duration, create_date, last_update_date) values (?, ?, ?, ?, ?, ?)";
     @Language("SQL")
     private final String UPDATE_CERTIFICATE = "UPDATE certificate " +
-            "SET name = ?, description = ?, price = ?, duration = ?, create_date = ?, last_update_date = ? WHERE id = ?";
+            "SET name = ?, description = ?, price = ?, duration = ?, last_update_date = ? WHERE id = ?";
     @Language("SQL")
     private final String ADD_TAG = "INSERT INTO certificate_tag values (?, ?)";
     @Language("SQL")
@@ -108,7 +108,6 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
                 certificate.getDescription(),
                 certificate.getPrice(),
                 certificate.getDuration(),
-                certificate.getCreateDate(),
                 certificate.getLastUpdateDate(),
                 certificate.getId()
         ) > 0;
