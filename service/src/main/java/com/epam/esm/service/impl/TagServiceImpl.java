@@ -37,11 +37,6 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDTO> getAllByCertificateId(int certificateId) {
-        return tagDao.getAllByCertificateId(certificateId).stream().map(tagDtoMapper::toDto).collect(Collectors.toList());
-    }
-
-    @Override
     public TagDTO create(TagDTO tag) {
         Tag result = tagDao.create(tagDtoMapper.toEntity(tag));
         return tagDtoMapper.toDto(result);
@@ -50,5 +45,20 @@ public class TagServiceImpl implements TagService {
     @Override
     public boolean delete(int id) {
         return tagDao.delete(id);
+    }
+
+    @Override
+    public boolean update(TagDTO dto) {
+        throw new UnsupportedOperationException("Update operation is not supported for TagService");
+    }
+
+    @Override
+    public List<TagDTO> getAllByCertificateId(int certificateId) {
+        return tagDao.getAllByCertificateId(certificateId).stream().map(tagDtoMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean nameExists(String name) {
+        return tagDao.nameExists(name);
     }
 }
