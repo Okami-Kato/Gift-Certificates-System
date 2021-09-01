@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -97,12 +98,12 @@ public class CertificateController {
         }
     }
 
-    @PutMapping(value = "/certificates/{certificateId}")
+    @PatchMapping(value = "/certificates/{certificateId}")
     public ResponseEntity<Object> updateCertificate(@PathVariable int certificateId, @Valid @RequestBody CertificateDTO certificate) {
         certificate.setLastUpdateDate(LocalDate.now());
         certificate.setId(certificateId);
         if (certificateService.update(certificate)) {
-            return new ResponseEntity<>(certificate, HttpStatus.OK);
+            return getCertificate(certificateId);
         } else {
             return new ResponseEntity<>(
                     new ControllerError(
