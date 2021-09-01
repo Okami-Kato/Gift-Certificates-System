@@ -21,10 +21,10 @@ public class CertificateDTO extends AbstractDTO {
     private String description;
 
     @Positive(message = "Certificate price must be positive number.")
-    private int price;
+    private Integer price;
 
     @Positive(message = "Certificate duration must be positive number.")
-    private int duration;
+    private Integer duration;
 
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate createDate;
@@ -51,19 +51,19 @@ public class CertificateDTO extends AbstractDTO {
         this.description = description;
     }
 
-    public int getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 
-    public int getDuration() {
+    public Integer getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(Integer duration) {
         this.duration = duration;
     }
 
@@ -129,12 +129,12 @@ public class CertificateDTO extends AbstractDTO {
             return this;
         }
 
-        public CertificateDTOBuilder withPrice(int price) {
+        public CertificateDTOBuilder withPrice(Integer price) {
             CertificateDTO.this.price = price;
             return this;
         }
 
-        public CertificateDTOBuilder withDuration(int duration) {
+        public CertificateDTOBuilder withDuration(Integer duration) {
             CertificateDTO.this.duration = duration;
             return this;
         }

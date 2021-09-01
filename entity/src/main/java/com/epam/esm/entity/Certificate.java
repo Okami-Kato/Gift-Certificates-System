@@ -38,7 +38,7 @@ public class Certificate extends Entity {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 
@@ -46,7 +46,7 @@ public class Certificate extends Entity {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(Integer duration) {
         this.duration = duration;
     }
 
@@ -111,12 +111,12 @@ public class Certificate extends Entity {
             return this;
         }
 
-        public CertificateBuilder withPrice(int price) {
+        public CertificateBuilder withPrice(Integer price) {
             Certificate.this.price = price;
             return this;
         }
 
-        public CertificateBuilder withDuration(int duration) {
+        public CertificateBuilder withDuration(Integer duration) {
             Certificate.this.duration = duration;
             return this;
         }
