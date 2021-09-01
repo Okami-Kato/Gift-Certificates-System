@@ -20,6 +20,7 @@ war.dependsOn explodedWar
 
 dependencies {
     implementation project(":service")
+    implementation project(":entity")
     implementation 'org.springframework:spring-webmvc:5.3.9'
     implementation 'jstl:jstl:1.2'
     implementation 'org.hibernate.validator:hibernate-validator:7.0.1.Final'
