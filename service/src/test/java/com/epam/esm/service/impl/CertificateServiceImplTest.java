@@ -35,14 +35,13 @@ class CertificateServiceImplTest {
     private static final TagDTO FIRST_TAG = new TagDTO(1, "tag1");
     private static final TagDTO SECOND_TAG = new TagDTO(2, "tag2");
     private static final CertificateDTO CERTIFICATE = CertificateDTO.newBuilder()
-            .setId(1)
-            .setName("name")
-            .setDescription("duration")
-            .setDuration(10)
-            .setPrice(5)
-            .setCreateDate(LocalDate.now())
-            .setLastUpdateDate(LocalDate.now())
-            .setTags(FIRST_TAG, SECOND_TAG)
+            .withId(1)
+            .withName("name")
+            .withDescription("duration")
+            .withDuration(10)
+            .withPrice(5)
+            .withCreateDate(LocalDate.now())
+            .withLastUpdateDate(LocalDate.now())
             .build();
     private static final CertificateDtoMapper certificateDtoMapper = new CertificateDtoMapper();
     private static final TagDtoMapper tagDtoMapper = new TagDtoMapper();
@@ -83,25 +82,25 @@ class CertificateServiceImplTest {
     @Test
     void getAll() {
         CertificateDTO firstCertificate = CertificateDTO.newBuilder()
-                .setId(2)
-                .setName("name")
-                .setDescription("description")
-                .setCreateDate(LocalDate.now())
-                .setLastUpdateDate(LocalDate.now())
+                .withId(2)
+                .withName("name")
+                .withDescription("description")
+                .withCreateDate(LocalDate.now())
+                .withLastUpdateDate(LocalDate.now())
                 .build();
         CertificateDTO secondCertificate = CertificateDTO.newBuilder()
-                .setId(3)
-                .setName("name")
-                .setDescription("description")
-                .setCreateDate(LocalDate.now())
-                .setLastUpdateDate(LocalDate.now())
+                .withId(3)
+                .withName("name")
+                .withDescription("description")
+                .withCreateDate(LocalDate.now())
+                .withLastUpdateDate(LocalDate.now())
                 .build();
         CertificateDTO thirdCertificate = CertificateDTO.newBuilder()
-                .setId(4)
-                .setName("name")
-                .setDescription("description")
-                .setCreateDate(LocalDate.now())
-                .setLastUpdateDate(LocalDate.now())
+                .withId(4)
+                .withName("name")
+                .withDescription("description")
+                .withCreateDate(LocalDate.now())
+                .withLastUpdateDate(LocalDate.now())
                 .build();
         List<CertificateDTO> list = Arrays.asList(firstCertificate, secondCertificate, thirdCertificate);
         when(certificateDao.getAll()).thenReturn(list.stream().map(certificateDtoMapper::toEntity).collect(Collectors.toList()));

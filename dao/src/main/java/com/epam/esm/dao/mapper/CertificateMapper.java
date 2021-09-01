@@ -19,13 +19,13 @@ public class CertificateMapper implements RowMapper<Certificate> {
     @Override
     public Certificate mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Certificate.newBuilder()
-                .setId(rs.getInt(ID))
-                .setName(rs.getString(NAME))
-                .setDescription(rs.getString(DESCRIPTION))
-                .setPrice(rs.getInt(PRICE))
-                .setDuration(rs.getInt(DURATION))
-                .setCreateDate(LocalDate.parse(rs.getString(CREATE_DATE)))
-                .setLastUpdateDate(LocalDate.parse(rs.getString(LAST_UPDATE_DATE)))
+                .withId(rs.getInt(ID))
+                .withName(rs.getString(NAME))
+                .withDescription(rs.getString(DESCRIPTION))
+                .withPrice(rs.getInt(PRICE))
+                .withDuration(rs.getInt(DURATION))
+                .withCreateDate(LocalDate.parse(rs.getString(CREATE_DATE)))
+                .withLastUpdateDate(LocalDate.parse(rs.getString(LAST_UPDATE_DATE)))
                 .build();
     }
 }

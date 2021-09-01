@@ -126,43 +126,38 @@ public class CertificateDTO extends AbstractDTO {
         private CertificateDTOBuilder() {
         }
 
-        public CertificateDTOBuilder setId(int id) {
-            CertificateDTO.this.setId(id);
+        public CertificateDTOBuilder withId(int id) {
+            CertificateDTO.this.id = id;
             return this;
         }
 
-        public CertificateDTOBuilder setName(String name) {
-            CertificateDTO.this.setName(name);
+        public CertificateDTOBuilder withName(String name) {
+            CertificateDTO.this.name = name;
             return this;
         }
 
-        public CertificateDTOBuilder setDescription(String description) {
-            CertificateDTO.this.setDescription(description);
+        public CertificateDTOBuilder withDescription(String description) {
+            CertificateDTO.this.description = description;
             return this;
         }
 
-        public CertificateDTOBuilder setPrice(int price) {
-            CertificateDTO.this.setPrice(price);
+        public CertificateDTOBuilder withPrice(int price) {
+            CertificateDTO.this.price = price;
             return this;
         }
 
-        public CertificateDTOBuilder setDuration(int duration) {
-            CertificateDTO.this.setDuration(duration);
+        public CertificateDTOBuilder withDuration(int duration) {
+            CertificateDTO.this.duration = duration;
             return this;
         }
 
-        public CertificateDTOBuilder setCreateDate(LocalDate createDate) {
-            CertificateDTO.this.setCreateDate(createDate);
+        public CertificateDTOBuilder withCreateDate(LocalDate createDate) {
+            CertificateDTO.this.createDate = createDate;
             return this;
         }
 
-        public CertificateDTOBuilder setLastUpdateDate(LocalDate updateDate) {
-            CertificateDTO.this.setLastUpdateDate(updateDate);
-            return this;
-        }
-
-        public CertificateDTOBuilder setTags(TagDTO... tags) {
-            CertificateDTO.this.setTagList(Arrays.asList(tags));
+        public CertificateDTOBuilder withLastUpdateDate(LocalDate lastUpdateDate) {
+            CertificateDTO.this.lastUpdateDate = lastUpdateDate;
             return this;
         }
 

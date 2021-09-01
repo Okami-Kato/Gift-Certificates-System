@@ -26,12 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ContextConfiguration(classes = {DaoConfig.class})
 class TagDaoImplTest {
     private static final Certificate CERTIFICATE = Certificate.newBuilder()
-            .setName("certificate")
-            .setDescription("description")
-            .setDuration(10)
-            .setPrice(5)
-            .setCreateDate(LocalDate.now())
-            .setLastUpdateDate(LocalDate.now())
+            .withName("certificate")
+            .withDescription("description")
+            .withDuration(10)
+            .withPrice(5)
+            .withCreateDate(LocalDate.now())
+            .withLastUpdateDate(LocalDate.now())
             .build();
     private static final Tag FIRST_TAG = new Tag("tag1");
     private static final Tag SECOND_TAG = new Tag("tag2");

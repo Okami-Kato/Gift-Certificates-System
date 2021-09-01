@@ -96,38 +96,38 @@ public class Certificate extends Entity {
         private CertificateBuilder() {
         }
 
-        public CertificateBuilder setId(int id) {
-            Certificate.this.setId(id);
+        public CertificateBuilder withId(int id) {
+            Certificate.this.id = id;
             return this;
         }
 
-        public CertificateBuilder setName(String name) {
-            Certificate.this.setName(name);
+        public CertificateBuilder withName(String name) {
+            Certificate.this.name = name;
             return this;
         }
 
-        public CertificateBuilder setDescription(String description) {
-            Certificate.this.setDescription(description);
+        public CertificateBuilder withDescription(String description) {
+            Certificate.this.description = description;
             return this;
         }
 
-        public CertificateBuilder setPrice(int price) {
-            Certificate.this.setPrice(price);
+        public CertificateBuilder withPrice(int price) {
+            Certificate.this.price = price;
             return this;
         }
 
-        public CertificateBuilder setDuration(int duration) {
-            Certificate.this.setDuration(duration);
+        public CertificateBuilder withDuration(int duration) {
+            Certificate.this.duration = duration;
             return this;
         }
 
-        public CertificateBuilder setCreateDate(LocalDate createDate) {
-            Certificate.this.setCreateDate(createDate);
+        public CertificateBuilder withCreateDate(LocalDate createDate) {
+            Certificate.this.createDate = createDate;
             return this;
         }
 
-        public CertificateBuilder setLastUpdateDate(LocalDate updateDate) {
-            Certificate.this.setLastUpdateDate(updateDate);
+        public CertificateBuilder withLastUpdateDate(LocalDate lastUpdateDate) {
+            Certificate.this.lastUpdateDate = lastUpdateDate;
             return this;
         }
 

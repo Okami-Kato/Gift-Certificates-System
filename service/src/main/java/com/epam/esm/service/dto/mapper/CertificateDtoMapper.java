@@ -9,12 +9,12 @@ public class CertificateDtoMapper implements DtoMapper<Certificate, CertificateD
     @Override
     public Certificate toEntity(CertificateDTO dto) {
         Certificate entity = Certificate.newBuilder()
-                .setName(dto.getName())
-                .setDescription(dto.getDescription())
-                .setPrice(dto.getPrice())
-                .setDuration(dto.getDuration())
-                .setCreateDate(dto.getCreateDate())
-                .setLastUpdateDate(dto.getLastUpdateDate())
+                .withName(dto.getName())
+                .withDescription(dto.getDescription())
+                .withPrice(dto.getPrice())
+                .withDuration(dto.getDuration())
+                .withCreateDate(dto.getCreateDate())
+                .withLastUpdateDate(dto.getLastUpdateDate())
                 .build();
         if (dto.getId() != null)
             entity.setId(dto.getId());
@@ -24,12 +24,12 @@ public class CertificateDtoMapper implements DtoMapper<Certificate, CertificateD
     @Override
     public CertificateDTO toDto(Certificate entity) {
         CertificateDTO dto = CertificateDTO.newBuilder()
-                .setName(entity.getName())
-                .setDescription(entity.getDescription())
-                .setPrice(entity.getPrice())
-                .setDuration(entity.getDuration())
-                .setCreateDate(entity.getCreateDate())
-                .setLastUpdateDate(entity.getLastUpdateDate())
+                .withName(entity.getName())
+                .withDescription(entity.getDescription())
+                .withPrice(entity.getPrice())
+                .withDuration(entity.getDuration())
+                .withCreateDate(entity.getCreateDate())
+                .withLastUpdateDate(entity.getLastUpdateDate())
                 .build();
         if (entity.getId() != null)
             dto.setId(entity.getId());
