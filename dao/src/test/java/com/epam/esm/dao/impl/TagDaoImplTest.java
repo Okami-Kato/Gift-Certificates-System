@@ -3,6 +3,7 @@ package com.epam.esm.dao.impl;
 import com.epam.esm.dao.CertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.config.DaoConfig;
+import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
@@ -46,6 +48,7 @@ class TagDaoImplTest {
     @Transactional
     void delete() {
         int generatedId = tagDao.create(FIRST_TAG).getId();
+        assertThrows(DaoException.class, () -> tagDao.create(FIRST_TAG));
         assertTrue(tagDao.get(generatedId).isPresent());
         assertTrue(tagDao.delete(generatedId));
         assertFalse(tagDao.get(generatedId).isPresent());

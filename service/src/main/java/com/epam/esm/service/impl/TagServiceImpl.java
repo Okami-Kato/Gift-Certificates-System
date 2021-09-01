@@ -1,10 +1,14 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
+import com.epam.esm.dao.exception.DaoErrorCode;
+import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDTO;
 import com.epam.esm.service.dto.mapper.DtoMapper;
+import com.epam.esm.service.exception.ServiceErrorCode;
+import com.epam.esm.service.exception.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +42,13 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDTO create(TagDTO tag) {
-        Tag result = tagDao.create(tagDtoMapper.toEntity(tag));
+        Tag result = null;
+        try {
+            result = tagDao.create(tagDtoMapper.toEntity(tag));
+        } catch (DaoException e) {
+            if (e.getErrorCode().equals(DaoErrorCode.DUPLICATE_KEY))
+                throw new ServiceException(ServiceErrorCode.DUPLICATE_TAG_NAME);
+        }
         return tagDtoMapper.toDto(result);
     }
 

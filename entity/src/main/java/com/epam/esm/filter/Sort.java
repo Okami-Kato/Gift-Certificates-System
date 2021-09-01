@@ -1,12 +1,11 @@
-package com.epam.esm.dao;
+package com.epam.esm.filter;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Sort {
-    private final String ORDER_QUERY = "ORDER BY";
-    private final List<Order> orders = new LinkedList<>();
+    private List<Order> orders = new LinkedList<>();
 
     public static Sort by(Order... orders) {
         Sort sort = new Sort();
@@ -18,6 +17,10 @@ public class Sort {
         return orders;
     }
 
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
     public Sort and(Sort sort) {
         Sort newSort = new Sort();
         newSort.orders.addAll(this.orders);
@@ -25,18 +28,12 @@ public class Sort {
         return newSort;
     }
 
-    public String getQuery() {
-        StringBuilder finalQuery = new StringBuilder(ORDER_QUERY);
-        for (Order order : orders) {
-            finalQuery.append(" ").append(order.property).append(" ").append(order.direction.getKeyWord()).append(",");
-        }
-        finalQuery.deleteCharAt(finalQuery.length() - 1); //removes last comma
-        return finalQuery.toString();
-    }
-
     public static class Order {
-        private final String property;
-        private final SortDirection direction;
+        private String property;
+        private SortDirection direction;
+
+        public Order() {
+        }
 
         private Order(String property, SortDirection sortDirection) {
             this.property = property;
@@ -55,8 +52,16 @@ public class Sort {
             return direction;
         }
 
+        public void setDirection(SortDirection direction) {
+            this.direction = direction;
+        }
+
         public String getProperty() {
             return property;
+        }
+
+        public void setProperty(String property) {
+            this.property = property;
         }
     }
 }

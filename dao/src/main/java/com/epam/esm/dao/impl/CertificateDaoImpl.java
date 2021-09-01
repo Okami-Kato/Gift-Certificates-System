@@ -2,12 +2,15 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.AbstractDao;
 import com.epam.esm.dao.CertificateDao;
-import com.epam.esm.dao.Sort;
+import com.epam.esm.dao.exception.DaoErrorCode;
 import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.dao.mapper.CertificateMapper;
 import com.epam.esm.entity.Certificate;
+import com.epam.esm.filter.CertificateFilter;
+import com.epam.esm.filter.Sort;
 import org.intellij.lang.annotations.Language;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -32,7 +35,7 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     @Language("SQL")
     private final String SELECT_CERTIFICATE = "SELECT * FROM certificate WHERE id = ?";
     @Language("SQL")
-    private final String SELECT_ALL_CERTIFICATES = "SELECT * FROM certificate";
+    private final String SELECT_ALL_CERTIFICATES = "SELECT c.* FROM certificate c";
     @Language("SQL")
     private final String DELETE_CERTIFICATE = "DELETE FROM certificate WHERE id = ?";
     @Language("SQL")
@@ -47,15 +50,17 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     private final String REMOVE_TAG = "DELETE FROM certificate_tag where certificate_id = ? and tag_id = ?";
     @Language("SQL")
     private final String SELECT_ALL_BY_TAGS = "SELECT DISTINCT C.* FROM certificate C INNER JOIN certificate_tag CT ON C.id = ct.certificate_id WHERE tag_id IN (%s)";
-    @Language("SQL")
-    private final String SELECT_ALL_BY_NAME_PART = "SELECT C.* FROM certificate C WHERE name LIKE ?";
-    @Language("SQL")
-    private final String SELECT_ALL_BY_DESCRIPTION_PART = "SELECT C.* FROM certificate C WHERE description LIKE ?";
+    private final String JOIN_ON_TAG_NAME = "JOIN certificate_tag ct on C.id = ct.certificate_id JOIN tag t on ct.tag_id = t.id WHERE t.name = ?";
+    private final String WHERE = "WHERE 1=1";
+    private final String AND_NAME_LIKE = "AND name LIKE ?";
+    private final String AND_DESCRIPTION_LIKE = "AND description LIKE ?";
+    private final String ORDER_BY = "ORDER BY";
+
     private final String TABLE_NAME = "CERTIFICATE";
     private final List<String> columns = new LinkedList<>();
 
     @Autowired
-    public CertificateDaoImpl(DataSource dataSource) throws DaoException {
+    public CertificateDaoImpl(DataSource dataSource){
         super(dataSource);
         try (Connection connection = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
@@ -64,7 +69,7 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
                 this.columns.add(columns.getString("COLUMN_NAME").toLowerCase(Locale.ROOT));
             }
         } catch (SQLException e) {
-            throw new DaoException("Failed to populate list of columns");
+            throw new DaoException(DaoErrorCode.DATABASE_ACCESS_ERROR, "Failed to populate list of columns");
         }
     }
 
@@ -119,27 +124,19 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     }
 
     @Override
-    public List<Certificate> getAll(Sort sort) {
-        for (Sort.Order order : sort.getOrders()) {
-            if (!columnExists(order.getProperty()))
-                throw new IllegalArgumentException(String.format("Column \"%s\" doesn't exist in certificate table", order.getProperty()));
+    public List<Certificate> getAll(CertificateFilter filter){
+        List<Object> args = new LinkedList<>();
+        String query = extractQuery(filter, args);
+        return jdbcTemplate.query(query, new CertificateMapper(), args.toArray());
+    }
+
+    @Override
+    public void addTag(int certificateId, int tagId){
+        try {
+            jdbcTemplate.update(ADD_TAG, certificateId, tagId);
+        } catch (DuplicateKeyException e) {
+            throw new DaoException(DaoErrorCode.DUPLICATE_KEY, String.format("Certificate (id=%s) already has tag (id=%s)", certificateId, tagId));
         }
-        return jdbcTemplate.query(SELECT_ALL_CERTIFICATES.concat(" ").concat(sort.getQuery()), new CertificateMapper());
-    }
-
-    @Override
-    public List<Certificate> getAllByNamePart(String namePart) {
-        return jdbcTemplate.query(SELECT_ALL_BY_NAME_PART, new CertificateMapper(), "%" + namePart + "%");
-    }
-
-    @Override
-    public List<Certificate> getAllByDescriptionPart(String descriptionPart) {
-        return jdbcTemplate.query(SELECT_ALL_BY_DESCRIPTION_PART, new CertificateMapper(), "%" + descriptionPart + "%");
-    }
-
-    @Override
-    public boolean addTag(int certificateId, int tagId) {
-        return jdbcTemplate.update(ADD_TAG, certificateId, tagId) > 0;
     }
 
     @Override
@@ -154,6 +151,50 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
         return jdbcTemplate.query(
                 String.format(SELECT_ALL_BY_TAGS, inSql),
                 new CertificateMapper(), (Object[]) ids);
+    }
+
+    private String extractQuery(CertificateFilter filter, List<Object> args){
+        StringBuilder query = new StringBuilder(SELECT_ALL_CERTIFICATES);
+
+        if (filter.getTagName() != null) {
+            args.add(filter.getTagName());
+            query.append(" ").append(JOIN_ON_TAG_NAME);
+        } else if (filter.getNamePart() != null || filter.getDescriptionPart() != null) {
+            query.append(" ").append(WHERE);
+        }
+
+        if (filter.getNamePart() != null) {
+            args.add("%" + filter.getNamePart() + "%");
+            query.append(" ").append(AND_NAME_LIKE);
+        }
+        if (filter.getDescriptionPart() != null) {
+            args.add("%" + filter.getDescriptionPart() + "%");
+            query.append(" ").append(AND_DESCRIPTION_LIKE);
+        }
+
+        if (filter.getSort() != null) {
+            query.append(" ").append(extractQuery(filter.getSort()));
+        }
+        return query.toString();
+    }
+
+    private String extractQuery(Sort sort){
+        StringBuilder query = new StringBuilder(ORDER_BY);
+        for (Sort.Order order : sort.getOrders()) {
+            if (!columnExists(order.getProperty()))
+                throw new DaoException(DaoErrorCode.BAD_SORT_PROPERTIES, String.format("Property (%s) doesn't exist", order.getProperty()));
+            query.append(" ").append(order.getProperty()).append(" ");
+            switch (order.getDirection()) {
+                case ASCENDING:
+                    query.append("ASC,");
+                    break;
+                case DESCENDING:
+                    query.append("DESC,");
+                    break;
+            }
+        }
+        query.deleteCharAt(query.length() - 1); //removes last comma
+        return query.toString();
     }
 
     private boolean columnExists(String columnName) {

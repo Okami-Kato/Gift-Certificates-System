@@ -1,16 +1,14 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.CertificateDao;
-import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.Certificate;
+import com.epam.esm.filter.CertificateFilter;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.dto.CertificateDTO;
 import com.epam.esm.service.dto.TagDTO;
 import com.epam.esm.service.dto.mapper.CertificateDtoMapper;
-import com.epam.esm.service.dto.mapper.TagDtoMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
 import org.mockito.stubbing.Answer;
 
 import java.time.LocalDate;
@@ -25,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,7 +30,6 @@ import static org.mockito.Mockito.when;
 
 class CertificateServiceImplTest {
     private static final TagDTO FIRST_TAG = new TagDTO(1, "tag1");
-    private static final TagDTO SECOND_TAG = new TagDTO(2, "tag2");
     private static final CertificateDTO CERTIFICATE = CertificateDTO.newBuilder()
             .withId(1)
             .withName("name")
@@ -44,16 +40,13 @@ class CertificateServiceImplTest {
             .withLastUpdateDate(LocalDate.now())
             .build();
     private static final CertificateDtoMapper certificateDtoMapper = new CertificateDtoMapper();
-    private static final TagDtoMapper tagDtoMapper = new TagDtoMapper();
     private static CertificateDao certificateDao;
-    private static TagDao tagDao;
     private static CertificateService certificateService;
 
     @BeforeAll
     static void init() {
         certificateDao = mock(CertificateDao.class);
-        tagDao = mock(TagDao.class);
-        certificateService = new CertificateServiceImpl(certificateDao, tagDao, certificateDtoMapper, tagDtoMapper);
+        certificateService = new CertificateServiceImpl(certificateDao, certificateDtoMapper);
     }
 
     @Test
@@ -61,11 +54,7 @@ class CertificateServiceImplTest {
         when(certificateDao.create(any(Certificate.class))).thenAnswer((Answer<Certificate>) invocation -> invocation.getArgument(0));
 
         assertEquals(CERTIFICATE, certificateService.create(CERTIFICATE));
-
-        InOrder inOrder = inOrder(certificateDao);
-        inOrder.verify(certificateDao).create(certificateDtoMapper.toEntity(CERTIFICATE));
-        inOrder.verify(certificateDao).addTag(CERTIFICATE.getId(), FIRST_TAG.getId());
-        inOrder.verify(certificateDao).addTag(CERTIFICATE.getId(), SECOND_TAG.getId());
+        verify(certificateDao, times(1)).create(certificateDtoMapper.toEntity(CERTIFICATE));
     }
 
     @Test
@@ -76,7 +65,6 @@ class CertificateServiceImplTest {
         assertTrue(retrievedCertificate.isPresent());
         assertEquals(CERTIFICATE, retrievedCertificate.get());
         verify(certificateDao, times(1)).get(CERTIFICATE.getId());
-        verify(tagDao, times(1)).getAllByCertificateId(CERTIFICATE.getId());
     }
 
     @Test
@@ -107,21 +95,17 @@ class CertificateServiceImplTest {
         List<CertificateDTO> all = certificateService.getAll();
         assertEquals(all, list);
 
-        when(certificateDao.getAllByNamePart(anyString())).thenReturn(list.stream().map(certificateDtoMapper::toEntity).collect(Collectors.toList()));
-        all = certificateService.getAllByNamePart("");
+        when(certificateDao.getAll(any(CertificateFilter.class))).thenReturn(list.stream().map(certificateDtoMapper::toEntity).collect(Collectors.toList()));
+        all = certificateService.getAll(new CertificateFilter());
         assertEquals(all, list);
 
-        when(certificateDao.getAllByDescriptionPart(anyString())).thenReturn(list.stream().map(certificateDtoMapper::toEntity).collect(Collectors.toList()));
-        all = certificateService.getAllByDescriptionPart("");
+        when(certificateDao.getAll(any(CertificateFilter.class))).thenReturn(list.stream().map(certificateDtoMapper::toEntity).collect(Collectors.toList()));
+        all = certificateService.getAll(new CertificateFilter());
         assertEquals(all, list);
 
         when(certificateDao.getAllByTags(any())).thenReturn(list.stream().map(certificateDtoMapper::toEntity).collect(Collectors.toList()));
-        all = certificateService.getAllByTags(1, 2, 3);
+        all = certificateService.getAll(1, 2, 3);
         assertEquals(all, list);
-
-        verify(tagDao, times(4)).getAllByCertificateId(firstCertificate.getId());
-        verify(tagDao, times(4)).getAllByCertificateId(secondCertificate.getId());
-        verify(tagDao, times(4)).getAllByCertificateId(thirdCertificate.getId());
     }
 
     @Test
@@ -137,7 +121,7 @@ class CertificateServiceImplTest {
         when(certificateDao.update(any(Certificate.class))).thenAnswer(invocation -> (((Certificate) invocation.getArgument(0)).getId().equals(CERTIFICATE.getId())));
         assertTrue(certificateService.update(CERTIFICATE));
         verify(certificateDao, times(1)).update(certificateDtoMapper.toEntity(CERTIFICATE));
-        CertificateDTO certificate = CertificateDTO.newBuilder().setId(CERTIFICATE.getId() + 1).build();
+        CertificateDTO certificate = CertificateDTO.newBuilder().withId(CERTIFICATE.getId() + 1).build();
         assertFalse(certificateService.update(certificate));
     }
 

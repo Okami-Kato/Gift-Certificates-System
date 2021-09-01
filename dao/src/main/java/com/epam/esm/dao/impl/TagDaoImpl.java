@@ -2,11 +2,14 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.AbstractDao;
 import com.epam.esm.dao.TagDao;
+import com.epam.esm.dao.exception.DaoErrorCode;
+import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.dao.mapper.TagMapper;
 import com.epam.esm.entity.Tag;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -55,15 +58,19 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
 
     @Override
     public Tag create(@NotNull Tag tag) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+        try {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection
-                    .prepareStatement(INSERT_TAG, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, tag.getName());
-            return ps;
-        }, keyHolder);
-        tag.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection
+                        .prepareStatement(INSERT_TAG, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, tag.getName());
+                return ps;
+            }, keyHolder);
+            tag.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+        } catch (DuplicateKeyException e) {
+            throw new DaoException(DaoErrorCode.DUPLICATE_KEY, String.format("Tag (name=%s) already exists", tag.getName()));
+        }
         return tag;
     }
 

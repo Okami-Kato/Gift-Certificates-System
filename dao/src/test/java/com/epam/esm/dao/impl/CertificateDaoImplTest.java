@@ -1,11 +1,13 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.CertificateDao;
-import com.epam.esm.dao.Sort;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.config.DaoConfig;
+import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.filter.CertificateFilter;
+import com.epam.esm.filter.Sort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
@@ -81,13 +84,13 @@ class CertificateDaoImplTest {
     void getByPart() {
         certificateDao.create(FIRST_CERTIFICATE);
         certificateDao.create(SECOND_CERTIFICATE);
-        assertEquals(2, certificateDao.getAllByNamePart("certificate").size());
-        assertEquals(1, certificateDao.getAllByNamePart("certificate1").size());
-        assertEquals(0, certificateDao.getAllByNamePart("certificatee").size());
+        assertEquals(2, certificateDao.getAll(CertificateFilter.newBuilder().withNamePart("certificate").build()).size());
+        assertEquals(1, certificateDao.getAll(CertificateFilter.newBuilder().withNamePart("certificate1").build()).size());
+        assertEquals(0, certificateDao.getAll(CertificateFilter.newBuilder().withNamePart("certificatee").build()).size());
 
-        assertEquals(2, certificateDao.getAllByDescriptionPart("description").size());
-        assertEquals(1, certificateDao.getAllByDescriptionPart("description1").size());
-        assertEquals(0, certificateDao.getAllByDescriptionPart("descriptionn").size());
+        assertEquals(2, certificateDao.getAll(CertificateFilter.newBuilder().withDescriptionPart("description").build()).size());
+        assertEquals(1, certificateDao.getAll(CertificateFilter.newBuilder().withDescriptionPart("description1").build()).size());
+        assertEquals(0, certificateDao.getAll(CertificateFilter.newBuilder().withDescriptionPart("descriptionn").build()).size());
     }
 
     @Test
@@ -133,25 +136,57 @@ class CertificateDaoImplTest {
         List<Certificate> orderByDescriptionAsc = Arrays.asList(thirdCertificate, firstCertificate, secondCertificate);
         List<Certificate> orderByDurationAsc = Arrays.asList(secondCertificate, firstCertificate, thirdCertificate);
 
-        assertEquals(orderByNameAsc, certificateDao.getAll(Sort.by(Sort.Order.asc(NAME_COLUMN))));
-        assertEquals(orderByDescriptionAsc, certificateDao.getAll(Sort.by(Sort.Order.asc(DESCRIPTION_COLUMN))));
-        assertEquals(orderByDurationAsc, certificateDao.getAll(Sort.by(Sort.Order.asc(DURATION_COLUMN))));
+        assertEquals(orderByNameAsc, certificateDao.getAll(
+                CertificateFilter.newBuilder()
+                        .withSort(Sort.by(Sort.Order.asc(NAME_COLUMN)))
+                        .build()
+        ));
+        assertEquals(orderByDescriptionAsc, certificateDao.getAll(
+                CertificateFilter.newBuilder()
+                        .withSort(Sort.by(Sort.Order.asc(DESCRIPTION_COLUMN)))
+                        .build()
+        ));
+        assertEquals(orderByDurationAsc, certificateDao.getAll(
+                CertificateFilter.newBuilder()
+                        .withSort(Sort.by(Sort.Order.asc(DURATION_COLUMN)))
+                        .build()
+        ));
 
         Collections.reverse(orderByNameAsc);
         Collections.reverse(orderByDescriptionAsc);
         Collections.reverse(orderByDurationAsc);
 
-        assertEquals(orderByNameAsc, certificateDao.getAll(Sort.by(Sort.Order.desc(NAME_COLUMN))));
-        assertEquals(orderByDescriptionAsc, certificateDao.getAll(Sort.by(Sort.Order.desc(DESCRIPTION_COLUMN))));
-        assertEquals(orderByDurationAsc, certificateDao.getAll(Sort.by(Sort.Order.desc(DURATION_COLUMN))));
+        assertEquals(orderByNameAsc, certificateDao.getAll(
+                CertificateFilter.newBuilder()
+                        .withSort(Sort.by(Sort.Order.desc(NAME_COLUMN)))
+                        .build()
+        ));
+        assertEquals(orderByDescriptionAsc, certificateDao.getAll(
+                CertificateFilter.newBuilder()
+                        .withSort(Sort.by(Sort.Order.desc(DESCRIPTION_COLUMN)))
+                        .build()
+        ));
+        assertEquals(orderByDurationAsc, certificateDao.getAll(
+                CertificateFilter.newBuilder()
+                        .withSort(Sort.by(Sort.Order.desc(DURATION_COLUMN)))
+                        .build()
+        ));
 
         certificateDao.create(forthCertificate);
 
         List<Certificate> orderByNameAscDescriptionAsc = Arrays.asList(firstCertificate, secondCertificate, forthCertificate, thirdCertificate);
         List<Certificate> orderByNameAscDescriptionDesc = Arrays.asList(firstCertificate, forthCertificate, secondCertificate, thirdCertificate);
 
-        assertEquals(orderByNameAscDescriptionAsc, certificateDao.getAll(Sort.by(Sort.Order.asc(NAME_COLUMN), Sort.Order.asc(DESCRIPTION_COLUMN))));
-        assertEquals(orderByNameAscDescriptionDesc, certificateDao.getAll(Sort.by(Sort.Order.asc(NAME_COLUMN), Sort.Order.desc(DESCRIPTION_COLUMN))));
+        assertEquals(orderByNameAscDescriptionAsc, certificateDao.getAll(
+                CertificateFilter.newBuilder()
+                        .withSort(Sort.by(Sort.Order.asc(NAME_COLUMN), Sort.Order.asc(DESCRIPTION_COLUMN)))
+                        .build()
+        ));
+        assertEquals(orderByNameAscDescriptionDesc, certificateDao.getAll(
+                CertificateFilter.newBuilder()
+                        .withSort(Sort.by(Sort.Order.asc(NAME_COLUMN), Sort.Order.desc(DESCRIPTION_COLUMN)))
+                        .build()
+        ));
     }
 
     @Test
@@ -164,6 +199,8 @@ class CertificateDaoImplTest {
         certificateDao.addTag(firstCertificate.getId(), firstTagId);
         certificateDao.addTag(firstCertificate.getId(), secondTagId);
         certificateDao.addTag(secondCertificate.getId(), firstTagId);
+
+        assertThrows(DaoException.class, () -> certificateDao.addTag(secondCertificate.getId(), firstTagId));
 
         List<Certificate> allByTags = certificateDao.getAllByTags(firstTagId, secondTagId);
         assertEquals(Arrays.asList(firstCertificate, secondCertificate), allByTags);

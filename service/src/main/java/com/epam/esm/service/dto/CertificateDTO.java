@@ -8,13 +8,9 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 
 public class CertificateDTO extends AbstractDTO {
-    private List<TagDTO> tagList = new LinkedList<>();
     @Size(min = 3, max = 50, message = "Certificate name must be {min}-{max} characters long.")
     @NotBlank(message = "Certificate name must not be blank.")
     @Pattern(regexp = "^[a-zA-Z0-9\\s]$", message = "Certificate name must be alphanumeric.")
@@ -87,13 +83,6 @@ public class CertificateDTO extends AbstractDTO {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public List<TagDTO> getTagList() {
-        return tagList;
-    }
-
-    public void setTagList(List<TagDTO> tagList) {
-        this.tagList = tagList;
-    }
 
     @Override
     public int hashCode() {
@@ -118,7 +107,6 @@ public class CertificateDTO extends AbstractDTO {
                 ", duration=" + duration +
                 ", createDate=" + createDate +
                 ", lastUpdateDate=" + lastUpdateDate +
-                ", tagList=" + tagList +
                 '}';
     }
 
@@ -170,7 +158,6 @@ public class CertificateDTO extends AbstractDTO {
             certificate.price = CertificateDTO.this.price;
             certificate.createDate = CertificateDTO.this.createDate;
             certificate.lastUpdateDate = CertificateDTO.this.lastUpdateDate;
-            certificate.tagList = CertificateDTO.this.tagList;
             return certificate;
         }
     }
