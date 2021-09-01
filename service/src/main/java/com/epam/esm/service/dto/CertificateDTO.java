@@ -2,28 +2,14 @@ package com.epam.esm.service.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class CertificateDTO extends AbstractDTO {
-    @Size(min = 3, max = 50, message = "Certificate name must be {min}-{max} characters long.")
-    @NotBlank(message = "Certificate name must not be blank.")
-    @Pattern(regexp = "^[a-zA-Z0-9\\s]$", message = "Certificate name must be alphanumeric.")
     private String name;
-
-    @Size(min = 10, max = 3000, message = "Certificate description must be {min}-{max} characters long.")
-    @NotBlank(message = "Certificate description must not be blank.")
     private String description;
-
-    @Positive(message = "Certificate price must be positive number.")
     private Integer price;
-
-    @Positive(message = "Certificate duration must be positive number.")
     private Integer duration;
 
     @JsonFormat(pattern = "dd-MM-yyyy")

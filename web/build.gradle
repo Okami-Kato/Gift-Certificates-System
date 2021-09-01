@@ -23,7 +23,6 @@ dependencies {
     implementation project(":entity")
     implementation 'org.springframework:spring-webmvc:5.3.9'
     implementation 'jstl:jstl:1.2'
-    implementation 'org.hibernate.validator:hibernate-validator:7.0.1.Final'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.5'
 

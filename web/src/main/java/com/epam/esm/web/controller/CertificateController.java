@@ -7,7 +7,6 @@ import com.epam.esm.service.exception.ServiceErrorCode;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.web.exception.ControllerError;
 import com.epam.esm.web.exception.ControllerErrorCode;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -67,7 +66,7 @@ public class CertificateController {
 
     @PostMapping(value = "/certificates")
     @ResponseStatus(HttpStatus.CREATED)
-    public CertificateDTO createCertificate(@Valid @RequestBody CertificateDTO certificate) {
+    public CertificateDTO createCertificate(@RequestBody CertificateDTO certificate) {
         LocalDate now = LocalDate.now();
         certificate.setCreateDate(now);
         certificate.setLastUpdateDate(now);
@@ -99,7 +98,7 @@ public class CertificateController {
     }
 
     @PatchMapping(value = "/certificates/{certificateId}")
-    public ResponseEntity<Object> updateCertificate(@PathVariable int certificateId, @Valid @RequestBody CertificateDTO certificate) {
+    public ResponseEntity<Object> updateCertificate(@PathVariable int certificateId, @RequestBody CertificateDTO certificate) {
         certificate.setLastUpdateDate(LocalDate.now());
         certificate.setId(certificateId);
         if (certificateService.update(certificate)) {

@@ -6,7 +6,6 @@ import com.epam.esm.service.exception.ServiceErrorCode;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.web.exception.ControllerError;
 import com.epam.esm.web.exception.ControllerErrorCode;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,7 +41,7 @@ public class TagController {
     }
 
     @PostMapping(value = "/tags")
-    public ResponseEntity<Object> createTag(@Valid @RequestBody TagDTO tag) {
+    public ResponseEntity<Object> createTag(@RequestBody TagDTO tag) {
         try {
             return new ResponseEntity<>(tagService.create(tag), HttpStatus.CREATED);
         } catch (ServiceException e) {
