@@ -8,7 +8,6 @@ import com.epam.esm.dao.mapper.CertificateMapper;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.filter.CertificateFilter;
 import com.epam.esm.filter.Sort;
-import org.intellij.lang.annotations.Language;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -32,23 +31,20 @@ import java.util.Optional;
 
 @Repository
 public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
-    @Language("SQL")
     private final String SELECT_CERTIFICATE = "SELECT * FROM certificate WHERE id = ?";
-    @Language("SQL")
     private final String SELECT_ALL_CERTIFICATES = "SELECT c.* FROM certificate c";
-    @Language("SQL")
     private final String DELETE_CERTIFICATE = "DELETE FROM certificate WHERE id = ?";
-    @Language("SQL")
     private final String INSERT_CERTIFICATE = "INSERT INTO certificate " +
             "(name, description, price, duration, create_date, last_update_date) values (?, ?, ?, ?, ?, ?)";
-    @Language("SQL")
-    private final String UPDATE_CERTIFICATE = "UPDATE certificate " +
-            "SET name = ?, description = ?, price = ?, duration = ?, last_update_date = ? WHERE id = ?";
-    @Language("SQL")
+    private final String UPDATE_CERTIFICATE = "UPDATE certificate SET %s WHERE id = ?";
+    private final String SET_NAME = "name = ?";
+    private final String SET_DESCRIPTION = "description = ?";
+    private final String SET_DURATION = "duration = ?";
+    private final String SET_PRICE = "price = ?";
+    private final String SET_CREATE_DATE = "create_date = ?";
+    private final String SET_LAST_UPDATE_DATE = "last_update_date = ?";
     private final String ADD_TAG = "INSERT INTO certificate_tag values (?, ?)";
-    @Language("SQL")
     private final String REMOVE_TAG = "DELETE FROM certificate_tag where certificate_id = ? and tag_id = ?";
-    @Language("SQL")
     private final String SELECT_ALL_BY_TAGS = "SELECT DISTINCT C.* FROM certificate C INNER JOIN certificate_tag CT ON C.id = ct.certificate_id WHERE tag_id IN (%s)";
     private final String JOIN_ON_TAG_NAME = "JOIN certificate_tag ct on C.id = ct.certificate_id JOIN tag t on ct.tag_id = t.id WHERE t.name = ?";
     private final String WHERE = "WHERE 1=1";
@@ -60,7 +56,7 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     private final List<String> columns = new LinkedList<>();
 
     @Autowired
-    public CertificateDaoImpl(DataSource dataSource){
+    public CertificateDaoImpl(DataSource dataSource) {
         super(dataSource);
         try (Connection connection = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection()) {
             DatabaseMetaData databaseMetaData = connection.getMetaData();
@@ -108,14 +104,35 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
 
     @Override
     public boolean update(Certificate certificate) {
-        return jdbcTemplate.update(UPDATE_CERTIFICATE,
-                certificate.getName(),
-                certificate.getDescription(),
-                certificate.getPrice(),
-                certificate.getDuration(),
-                certificate.getLastUpdateDate(),
-                certificate.getId()
-        ) > 0;
+        StringBuilder query = new StringBuilder();
+        List<Object> args = new LinkedList<>();
+        if (certificate.getName() != null) {
+            query.append(SET_NAME).append(",");
+            args.add(certificate.getName());
+        }
+        if (certificate.getDescription() != null) {
+            query.append(SET_DESCRIPTION).append(",");
+            args.add(certificate.getDescription());
+        }
+        if (certificate.getDuration() != null) {
+            query.append(SET_DURATION).append(",");
+            args.add(certificate.getDuration());
+        }
+        if (certificate.getPrice() != null) {
+            query.append(SET_PRICE).append(",");
+            args.add(certificate.getPrice());
+        }
+        if (certificate.getCreateDate() != null) {
+            query.append(SET_CREATE_DATE).append(",");
+            args.add(certificate.getCreateDate());
+        }
+        if (certificate.getLastUpdateDate() != null) {
+            query.append(SET_LAST_UPDATE_DATE).append(",");
+            args.add(certificate.getLastUpdateDate());
+        }
+        query.deleteCharAt(query.length() - 1);
+        args.add(certificate.getId());
+        return jdbcTemplate.update(String.format(UPDATE_CERTIFICATE, query), args.toArray()) > 0;
     }
 
     @Override
@@ -124,14 +141,14 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     }
 
     @Override
-    public List<Certificate> getAll(CertificateFilter filter){
+    public List<Certificate> getAll(CertificateFilter filter) {
         List<Object> args = new LinkedList<>();
         String query = extractQuery(filter, args);
         return jdbcTemplate.query(query, new CertificateMapper(), args.toArray());
     }
 
     @Override
-    public void addTag(int certificateId, int tagId){
+    public void addTag(int certificateId, int tagId) {
         try {
             jdbcTemplate.update(ADD_TAG, certificateId, tagId);
         } catch (DuplicateKeyException e) {
@@ -153,7 +170,7 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
                 new CertificateMapper(), (Object[]) ids);
     }
 
-    private String extractQuery(CertificateFilter filter, List<Object> args){
+    private String extractQuery(CertificateFilter filter, List<Object> args) {
         StringBuilder query = new StringBuilder(SELECT_ALL_CERTIFICATES);
 
         if (filter.getTagName() != null) {
@@ -178,7 +195,7 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
         return query.toString();
     }
 
-    private String extractQuery(Sort sort){
+    private String extractQuery(Sort sort) {
         StringBuilder query = new StringBuilder(ORDER_BY);
         for (Sort.Order order : sort.getOrders()) {
             if (!columnExists(order.getProperty()))

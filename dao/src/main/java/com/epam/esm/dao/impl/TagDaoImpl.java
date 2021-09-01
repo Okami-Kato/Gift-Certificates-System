@@ -6,7 +6,6 @@ import com.epam.esm.dao.exception.DaoErrorCode;
 import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.dao.mapper.TagMapper;
 import com.epam.esm.entity.Tag;
-import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -24,17 +23,11 @@ import java.util.Optional;
 
 @Repository
 public class TagDaoImpl extends AbstractDao implements TagDao {
-    @Language("SQL")
     private final String SELECT_TAG = "SELECT * FROM tag WHERE id = ?";
-    @Language("SQL")
     private final String SELECT_ALL_TAGS = "SELECT * FROM tag";
-    @Language("SQL")
     private final String SELECT_All_TAGS_BY_CERTIFICATE_ID = "SELECT T.* FROM tag T INNER JOIN certificate_tag CT on T.id = CT.tag_id where certificate_id = ?";
-    @Language("SQL")
     private final String DELETE_TAG = "DELETE FROM tag WHERE id = ?";
-    @Language("SQL")
     private final String INSERT_TAG = "INSERT INTO tag (name) values (?)";
-    @Language("SQL")
     private final String NAME_EXISTS = "SELECT EXISTS(SELECT * FROM tag WHERE name = ?)";
 
     @Autowired
