@@ -1,6 +1,5 @@
 package com.epam.esm.service.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDate;
@@ -12,9 +11,9 @@ public class CertificateDTO extends AbstractDTO {
     private Integer price;
     private Integer duration;
 
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate createDate;
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate lastUpdateDate;
 
     public static CertificateDTO.CertificateDTOBuilder newBuilder() {
