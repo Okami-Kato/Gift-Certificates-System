@@ -195,7 +195,6 @@ class CertificateDaoImplTest {
         Integer secondTagId = tagDao.create(SECOND_TAG).getId();
         Certificate firstCertificate = certificateDao.create(FIRST_CERTIFICATE);
         Certificate secondCertificate = certificateDao.create(SECOND_CERTIFICATE);
-
         certificateDao.addTag(firstCertificate.getId(), firstTagId);
         certificateDao.addTag(firstCertificate.getId(), secondTagId);
         certificateDao.addTag(secondCertificate.getId(), firstTagId);

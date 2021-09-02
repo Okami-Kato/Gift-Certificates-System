@@ -1,5 +1,6 @@
 package com.epam.esm.web.controller;
 
+import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDTO;
 import com.epam.esm.service.exception.ServiceErrorCode;
@@ -32,23 +33,37 @@ import static com.epam.esm.web.exception.ErrorMessage.UNEXPECTED_ERROR;
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 public class TagController {
     private final TagService tagService;
+    private final CertificateService certificateService;
     private final TagValidator tagValidator;
 
     @Autowired
-    public TagController(TagService tagService, TagValidator tagValidator) {
+    public TagController(TagService tagService, CertificateService certificateService, TagValidator tagValidator) {
         this.tagService = tagService;
+        this.certificateService = certificateService;
         this.tagValidator = tagValidator;
     }
 
+    /**
+     * Retrieves all tags.
+     *
+     * @return list of tags.
+     */
     @GetMapping(value = "/tags")
     public List<TagDTO> getAllTags() {
         return tagService.getAll();
     }
 
+    /**
+     * Creates new tag from give TagDTO.
+     *
+     * @param tag tag to be created.
+     * @return created tag, if tag is valid and service call was successful.<br/>
+     * {@link ControllerError}, if given tag failed validation process.
+     */
     @PostMapping(value = "/tags")
     public ResponseEntity<Object> createTag(@RequestBody TagDTO tag) {
         Set<ConstraintViolation> violations = tagValidator.validateTag(tag, true);
-        if (!violations.isEmpty()){
+        if (!violations.isEmpty()) {
             return new ResponseEntity<>(violations, HttpStatus.FORBIDDEN);
         }
 
@@ -70,6 +85,13 @@ public class TagController {
         }
     }
 
+    /**
+     * Retrieves tag with given id.
+     *
+     * @param tagId id of desired tag.
+     * @return tag, one was found.<br/>
+     * {@link ControllerError}, if tag with given id wasn't found.
+     */
     @GetMapping(value = "/tags/{tagId}")
     public ResponseEntity<Object> getTag(@PathVariable int tagId) {
         Optional<TagDTO> tag = tagService.get(tagId);
@@ -81,6 +103,12 @@ public class TagController {
                         HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Deletes tag with given id.
+     *
+     * @param tagId id of tag to be deleted
+     * @return {@link ControllerError}, if tag with given id wasn't found.
+     */
     @DeleteMapping(value = "/tags/{tagId}")
     public ResponseEntity<Object> deleteTag(@PathVariable int tagId) {
         if (tagService.delete(tagId)) {
@@ -93,8 +121,21 @@ public class TagController {
         }
     }
 
+    /**
+     * Retrieves tags, which are assigned to certificate with given id.
+     *
+     * @param certificateId id of desired certificate.
+     * @return list of tags.
+     */
     @GetMapping(value = "/certificates/{certificateId}/tags")
-    public List<TagDTO> getCertificateTags(@PathVariable int certificateId) {
-        return tagService.getAllByCertificateId(certificateId);
+    public ResponseEntity<Object> getCertificateTags(@PathVariable int certificateId) {
+        final List<TagDTO> tags = tagService.getAllByCertificateId(certificateId);
+        if (tags.isEmpty() && !certificateService.idExists(certificateId)) {
+            return new ResponseEntity<>(
+                    new ControllerError(String.format(RESOURCE_NOT_FOUND, "id=" + certificateId), ControllerErrorCode.CERTIFICATE_NOT_FOUND),
+                    HttpStatus.NOT_FOUND
+            );
+        }
+        return new ResponseEntity<>(tags, HttpStatus.OK);
     }
 }

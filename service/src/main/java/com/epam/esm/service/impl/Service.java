@@ -15,4 +15,6 @@ public interface Service<T extends AbstractDTO> {
     boolean delete(int id);
 
     boolean update(T dto);
+
+    boolean idExists(int id);
 }

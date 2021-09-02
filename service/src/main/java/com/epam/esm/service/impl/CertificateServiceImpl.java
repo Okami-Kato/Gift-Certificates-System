@@ -59,6 +59,11 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
+    public boolean idExists(int id) {
+        return certificateDao.idExists(id);
+    }
+
+    @Override
     public List<CertificateDTO> getAll(CertificateFilter certificateFilter) {
         try {
             return certificateDao.getAll(certificateFilter).stream().map(certificateDtoMapper::toDto).collect(Collectors.toList());
@@ -71,19 +76,21 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void addTag(int certificateId, int tagId){
+    public List<CertificateDTO> getAll(Integer... ids) {
+        return certificateDao.getAllByTags(ids).stream().map(certificateDtoMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public void addTag(int certificateId, int tagId) {
         try {
             certificateDao.addTag(certificateId, tagId);
         } catch (DaoException e) {
             if (e.getErrorCode().equals(DaoErrorCode.DUPLICATE_KEY)) {
                 throw new ServiceException(ServiceErrorCode.DUPLICATE_CERTIFICATE_TAG);
+            } else if (e.getErrorCode().equals(DaoErrorCode.CONSTRAIN_VIOLATION)) {
+                throw new ServiceException(ServiceErrorCode.BAD_KEY);
             }
         }
-    }
-
-    @Override
-    public List<CertificateDTO> getAll(Integer... ids) {
-        return certificateDao.getAllByTags(ids).stream().map(certificateDtoMapper::toDto).collect(Collectors.toList());
     }
 
     @Override

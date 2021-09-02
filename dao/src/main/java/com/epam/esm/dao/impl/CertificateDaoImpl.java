@@ -9,6 +9,7 @@ import com.epam.esm.entity.Certificate;
 import com.epam.esm.util.CertificateFilter;
 import com.epam.esm.util.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -37,6 +38,7 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     private final String INSERT_CERTIFICATE = "INSERT INTO certificate " +
             "(name, description, price, duration, create_date, last_update_date) values (?, ?, ?, ?, ?, ?)";
     private final String UPDATE_CERTIFICATE = "UPDATE certificate SET %s WHERE id = ?";
+    private final String ID_EXISTS = "SELECT EXISTS(SELECT * FROM tag WHERE id = ?)";
     private final String SET_NAME = "name = ?";
     private final String SET_DESCRIPTION = "description = ?";
     private final String SET_DURATION = "duration = ?";
@@ -152,8 +154,23 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
         try {
             jdbcTemplate.update(ADD_TAG, certificateId, tagId);
         } catch (DuplicateKeyException e) {
-            throw new DaoException(DaoErrorCode.DUPLICATE_KEY, String.format("Certificate (id=%s) already has tag (id=%s)", certificateId, tagId));
+            throw new DaoException(
+                    DaoErrorCode.DUPLICATE_KEY,
+                    String.format("Certificate (id=%s) already has tag (id=%s)", certificateId, tagId)
+            );
+        } catch (DataIntegrityViolationException e) {
+            throw new DaoException(
+                    DaoErrorCode.CONSTRAIN_VIOLATION,
+                    String.format(
+                            "Some of provided parameters (certificateId=%s, tagId=%s) don't reference real data",
+                            certificateId, tagId)
+            );
         }
+    }
+
+    @Override
+    public boolean idExists(int id) {
+        return jdbcTemplate.queryForObject(ID_EXISTS, Boolean.class, id);
     }
 
     @Override

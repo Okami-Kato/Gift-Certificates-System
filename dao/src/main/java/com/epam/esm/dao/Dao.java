@@ -15,4 +15,6 @@ public interface Dao<T extends Entity> {
     boolean update(T t);
 
     boolean delete(int id);
+
+    boolean idExists(int id);
 }

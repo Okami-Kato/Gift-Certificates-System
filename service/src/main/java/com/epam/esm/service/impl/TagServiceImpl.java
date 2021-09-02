@@ -63,6 +63,11 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    public boolean idExists(int id) {
+        return tagDao.idExists(id);
+    }
+
+    @Override
     public List<TagDTO> getAllByCertificateId(int certificateId) {
         return tagDao.getAllByCertificateId(certificateId).stream().map(tagDtoMapper::toDto).collect(Collectors.toList());
     }

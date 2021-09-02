@@ -29,6 +29,7 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
     private final String DELETE_TAG = "DELETE FROM tag WHERE id = ?";
     private final String INSERT_TAG = "INSERT INTO tag (name) values (?)";
     private final String NAME_EXISTS = "SELECT EXISTS(SELECT * FROM tag WHERE name = ?)";
+    private final String ID_EXISTS = "SELECT EXISTS(SELECT * FROM tag WHERE id = ?)";
 
     @Autowired
     public TagDaoImpl(DataSource dataSource) {
@@ -75,6 +76,11 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
     @Override
     public boolean delete(int id) {
         return jdbcTemplate.update(DELETE_TAG, id) > 0;
+    }
+
+    @Override
+    public boolean idExists(int id) {
+        return jdbcTemplate.queryForObject(ID_EXISTS, Boolean.class, id);
     }
 
     @Override

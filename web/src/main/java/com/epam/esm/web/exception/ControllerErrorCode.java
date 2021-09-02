@@ -1,6 +1,7 @@
 package com.epam.esm.web.exception;
 
 public enum ControllerErrorCode {
+    ENTITY_NOT_FOUND(40400),
     CERTIFICATE_NOT_FOUND(40401),
     TAG_NOT_FOUND(40402),
     BAD_SORT_PROPERTY(40403),

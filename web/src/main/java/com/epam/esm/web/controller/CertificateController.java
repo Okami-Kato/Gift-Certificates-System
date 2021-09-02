@@ -1,6 +1,7 @@
 package com.epam.esm.web.controller;
 
 import com.epam.esm.service.CertificateService;
+import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.CertificateDTO;
 import com.epam.esm.service.exception.ServiceErrorCode;
 import com.epam.esm.service.exception.ServiceException;
@@ -38,14 +39,24 @@ import static com.epam.esm.web.exception.ErrorMessage.UNEXPECTED_ERROR;
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 public class CertificateController {
     private final CertificateService certificateService;
+    private final TagService tagService;
     private final CertificateValidator certificateValidator;
 
     @Autowired
-    public CertificateController(CertificateService certificateService, CertificateValidator certificateValidator) {
+    public CertificateController(CertificateService certificateService, TagService tagService, CertificateValidator certificateValidator) {
         this.certificateService = certificateService;
+        this.tagService = tagService;
         this.certificateValidator = certificateValidator;
     }
 
+
+    /**
+     * Retrieves all gift certificates, that match given certificateFilter.
+     *
+     * @param certificateFilter the filter to be applied.
+     * @return list of certificates, if service call was successful.<br/>
+     * {@link ControllerError} if certificateFilter had illegal sort properties, or if unexpected error occurred.
+     */
     @GetMapping(value = "/certificates")
     public ResponseEntity<Object> getAllCertificates(@RequestBody(required = false) CertificateFilter certificateFilter) {
         if (certificateFilter != null) {
@@ -69,6 +80,13 @@ public class CertificateController {
         }
     }
 
+    /**
+     * Creates new certificate from given CertificateDTO.
+     *
+     * @param certificate certificate to be created.
+     * @return created certificate, if certificate is valid and service call was successful.<br/>
+     * {@link ControllerError}, if given certificate failed validation process.
+     */
     @PostMapping(value = "/certificates")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Object> createCertificate(@RequestBody CertificateDTO certificate) {
@@ -84,6 +102,13 @@ public class CertificateController {
         return new ResponseEntity<>(certificateService.create(certificate), HttpStatus.CREATED);
     }
 
+    /**
+     * Retrieves certificate with given id.
+     *
+     * @param certificateId id of desired certificate.
+     * @return certificate, if one was found.<br/>
+     * {@link ControllerError}, if certificate with given id wasn't found.
+     */
     @GetMapping(value = "/certificates/{certificateId}")
     public ResponseEntity<Object> getCertificate(@PathVariable int certificateId) {
         Optional<CertificateDTO> certificate = certificateService.get(certificateId);
@@ -95,6 +120,12 @@ public class CertificateController {
                         HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Deletes certificate with given id.
+     *
+     * @param certificateId id of desired certificate.
+     * @return {@link ControllerError}, if certificate with given id wasn't found.
+     */
     @DeleteMapping(value = "/certificates/{certificateId}")
     public ResponseEntity<Object> deleteCertificate(@PathVariable int certificateId) {
         if (certificateService.delete(certificateId)) {
@@ -108,6 +139,14 @@ public class CertificateController {
         }
     }
 
+    /**
+     * Updates certificate with given id. New values are taken from not null fields of given certificate.
+     *
+     * @param certificateId id of certificate to be updated
+     * @param certificate   container of new values.
+     * @return updated certificate, if service call was successful.<br/>
+     * {@link ControllerError}, if given certificate failed validation process, or certificate with given id wasn't found.
+     */
     @PatchMapping(value = "/certificates/{certificateId}")
     public ResponseEntity<Object> updateCertificate(@PathVariable int certificateId, @RequestBody CertificateDTO certificate) {
         Set<ConstraintViolation> violations = certificateValidator.validateCertificate(certificate, false);
@@ -129,11 +168,33 @@ public class CertificateController {
         }
     }
 
+    /**
+     * Retrieves list of certificates, that correspond to tag with given id
+     *
+     * @param tagId id of desired tag
+     * @return list of certificates, if service call was successful.<br/>
+     * {@link ControllerError}, if tag with given id wasn't found.
+     */
     @GetMapping(value = "/tags/{tagId}/certificates")
-    public List<CertificateDTO> getCertificatesByTag(@PathVariable int tagId) {
-        return certificateService.getAll(tagId);
+    public ResponseEntity<Object> getCertificatesByTag(@PathVariable int tagId) {
+        List<CertificateDTO> certificates = certificateService.getAll(tagId);
+        if (certificates.isEmpty() && !tagService.idExists(tagId)) {
+            return new ResponseEntity<>(
+                    new ControllerError(String.format(RESOURCE_NOT_FOUND, "id=" + tagId), ControllerErrorCode.TAG_NOT_FOUND),
+                    HttpStatus.NOT_FOUND
+            );
+        }
+        return new ResponseEntity<>(certificates, HttpStatus.OK);
     }
 
+    /**
+     * Assign tag with given id to certificate with given id.
+     *
+     * @param tagId         id of desired tag.
+     * @param certificateId id of desired certificate.
+     * @return {@link ControllerError} if that relationship already exists, if tag or certificate wasn't found,
+     * or if unexpected error occurred.
+     */
     @PutMapping(value = {"/tags/{tagId}/certificates/{certificateId}", "certificates/{certificateId}/tags/{tagId}"})
     public ResponseEntity<Object> assignCertificateToTag(@PathVariable int tagId, @PathVariable int certificateId) {
         try {
@@ -146,15 +207,33 @@ public class CertificateController {
                                 String.format(RELATIONSHIP_EXISTS, "certificateId=" + certificateId + ", tagId=" + tagId),
                                 ControllerErrorCode.DUPLICATE_CERTIFICATE_TAG),
                         HttpStatus.CONFLICT);
+            } else if (e.getErrorCode().equals(ServiceErrorCode.BAD_KEY)) {
+                StringBuilder msg = new StringBuilder();
+                if (!certificateService.idExists(certificateId)) {
+                    msg.append("certificateId=").append(certificateId);
+                }
+                if (!tagService.idExists(tagId)) {
+                    msg.append("tagId=").append(tagId);
+                }
+                return new ResponseEntity<>(
+                        new ControllerError(String.format(RESOURCE_NOT_FOUND, msg), ControllerErrorCode.ENTITY_NOT_FOUND),
+                        HttpStatus.NOT_FOUND
+                );
             } else {
                 return new ResponseEntity<>(
-                        new ControllerError(
-                                UNEXPECTED_ERROR, ControllerErrorCode.SERVER_ERROR),
+                        new ControllerError(UNEXPECTED_ERROR, ControllerErrorCode.SERVER_ERROR),
                         HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
     }
 
+    /**
+     * Remove tag with given id from certificate with given id.
+     *
+     * @param tagId         id of desired tag.
+     * @param certificateId id of desired certificate.
+     * @return {@link ControllerError} if that relationship wasn't found.
+     */
     @DeleteMapping(value = {"/tags/{tagId}/certificates/{certificateId}", "certificates/{certificateId}/tags/{tagId}"})
     public ResponseEntity<Object> removeCertificateFromTag(@PathVariable int tagId, @PathVariable int certificateId) {
         if (certificateService.removeTag(certificateId, tagId)) {
