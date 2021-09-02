@@ -1,4 +1,4 @@
-package com.epam.esm.filter;
+package com.epam.esm.util;
 
 import java.util.Arrays;
 import java.util.LinkedList;

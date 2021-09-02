@@ -20,7 +20,6 @@ war.dependsOn explodedWar
 
 dependencies {
     implementation project(":service")
-    implementation project(":entity")
     implementation 'org.springframework:spring-webmvc:5.3.9'
     implementation 'jstl:jstl:1.2'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.5'

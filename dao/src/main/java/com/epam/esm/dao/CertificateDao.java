@@ -1,7 +1,7 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.entity.Certificate;
-import com.epam.esm.filter.CertificateFilter;
+import com.epam.esm.util.CertificateFilter;
 
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package com.epam.esm.service;
 
-import com.epam.esm.filter.CertificateFilter;
 import com.epam.esm.service.dto.CertificateDTO;
 import com.epam.esm.service.impl.Service;
+import com.epam.esm.util.CertificateFilter;
 
 import java.util.List;
 

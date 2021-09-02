@@ -1,10 +1,10 @@
 package com.epam.esm.web.controller;
 
-import com.epam.esm.filter.CertificateFilter;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.dto.CertificateDTO;
 import com.epam.esm.service.exception.ServiceErrorCode;
 import com.epam.esm.service.exception.ServiceException;
+import com.epam.esm.util.CertificateFilter;
 import com.epam.esm.web.exception.ControllerError;
 import com.epam.esm.web.exception.ControllerErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
