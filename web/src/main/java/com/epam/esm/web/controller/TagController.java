@@ -6,6 +6,8 @@ import com.epam.esm.service.exception.ServiceErrorCode;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.web.exception.ControllerError;
 import com.epam.esm.web.exception.ControllerErrorCode;
+import com.epam.esm.web.validation.ConstraintViolation;
+import com.epam.esm.web.validation.TagValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.epam.esm.web.exception.ErrorMessage.RESOURCE_EXISTS;
 import static com.epam.esm.web.exception.ErrorMessage.RESOURCE_NOT_FOUND;
@@ -29,10 +32,12 @@ import static com.epam.esm.web.exception.ErrorMessage.UNEXPECTED_ERROR;
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 public class TagController {
     private final TagService tagService;
+    private final TagValidator tagValidator;
 
     @Autowired
-    public TagController(TagService tagService) {
+    public TagController(TagService tagService, TagValidator tagValidator) {
         this.tagService = tagService;
+        this.tagValidator = tagValidator;
     }
 
     @GetMapping(value = "/tags")
@@ -42,6 +47,11 @@ public class TagController {
 
     @PostMapping(value = "/tags")
     public ResponseEntity<Object> createTag(@RequestBody TagDTO tag) {
+        Set<ConstraintViolation> violations = tagValidator.validateTag(tag, true);
+        if (!violations.isEmpty()){
+            return new ResponseEntity<>(violations, HttpStatus.FORBIDDEN);
+        }
+
         try {
             return new ResponseEntity<>(tagService.create(tag), HttpStatus.CREATED);
         } catch (ServiceException e) {

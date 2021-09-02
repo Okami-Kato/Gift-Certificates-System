@@ -2,10 +2,10 @@ package com.epam.esm.web.exception;
 
 public class ControllerError {
     private final int errorCode;
-    private final String errorMessage;
+    private final Object errorExplanation;
 
-    public ControllerError(String errorMessage, ControllerErrorCode errorCode) {
-        this.errorMessage = errorMessage;
+    public ControllerError(Object errorExplanation, ControllerErrorCode errorCode) {
+        this.errorExplanation = errorExplanation;
         this.errorCode = errorCode.getValue();
     }
 
@@ -13,7 +13,7 @@ public class ControllerError {
         return errorCode;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public Object getErrorExplanation() {
+        return errorExplanation;
     }
 }

@@ -7,6 +7,8 @@ import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.util.CertificateFilter;
 import com.epam.esm.web.exception.ControllerError;
 import com.epam.esm.web.exception.ControllerErrorCode;
+import com.epam.esm.web.validation.CertificateValidator;
+import com.epam.esm.web.validation.ConstraintViolation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.epam.esm.web.exception.ErrorMessage.RELATIONSHIP_EXISTS;
 import static com.epam.esm.web.exception.ErrorMessage.RELATIONSHIP_NOT_FOUND;
@@ -35,10 +38,12 @@ import static com.epam.esm.web.exception.ErrorMessage.UNEXPECTED_ERROR;
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 public class CertificateController {
     private final CertificateService certificateService;
+    private final CertificateValidator certificateValidator;
 
     @Autowired
-    public CertificateController(CertificateService certificateService) {
+    public CertificateController(CertificateService certificateService, CertificateValidator certificateValidator) {
         this.certificateService = certificateService;
+        this.certificateValidator = certificateValidator;
     }
 
     @GetMapping(value = "/certificates")
@@ -66,11 +71,17 @@ public class CertificateController {
 
     @PostMapping(value = "/certificates")
     @ResponseStatus(HttpStatus.CREATED)
-    public CertificateDTO createCertificate(@RequestBody CertificateDTO certificate) {
+    public ResponseEntity<Object> createCertificate(@RequestBody CertificateDTO certificate) {
+        Set<ConstraintViolation> violations = certificateValidator.validateCertificate(certificate, true);
+        if (!violations.isEmpty()) {
+            return new ResponseEntity<>(
+                    new ControllerError(violations, ControllerErrorCode.CERTIFICATE_VALIDATION_FAILURE),
+                    HttpStatus.FORBIDDEN);
+        }
         LocalDate now = LocalDate.now();
         certificate.setCreateDate(now);
         certificate.setLastUpdateDate(now);
-        return certificateService.create(certificate);
+        return new ResponseEntity<>(certificateService.create(certificate), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/certificates/{certificateId}")
@@ -99,6 +110,12 @@ public class CertificateController {
 
     @PatchMapping(value = "/certificates/{certificateId}")
     public ResponseEntity<Object> updateCertificate(@PathVariable int certificateId, @RequestBody CertificateDTO certificate) {
+        Set<ConstraintViolation> violations = certificateValidator.validateCertificate(certificate, false);
+        if (!violations.isEmpty()) {
+            return new ResponseEntity<>(
+                    new ControllerError(violations, ControllerErrorCode.CERTIFICATE_VALIDATION_FAILURE),
+                    HttpStatus.FORBIDDEN);
+        }
         certificate.setLastUpdateDate(LocalDate.now());
         certificate.setId(certificateId);
         if (certificateService.update(certificate)) {
