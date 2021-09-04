@@ -210,7 +210,7 @@ public class CertificateController {
             } else if (e.getErrorCode().equals(ServiceErrorCode.BAD_KEY)) {
                 StringBuilder msg = new StringBuilder();
                 if (!certificateService.idExists(certificateId)) {
-                    msg.append("certificateId=").append(certificateId);
+                    msg.append("certificateId=").append(certificateId).append(";");
                 }
                 if (!tagService.idExists(tagId)) {
                     msg.append("tagId=").append(tagId);
