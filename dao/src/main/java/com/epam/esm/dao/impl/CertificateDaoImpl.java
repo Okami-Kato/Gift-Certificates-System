@@ -38,7 +38,7 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     private final String INSERT_CERTIFICATE = "INSERT INTO certificate " +
             "(name, description, price, duration, create_date, last_update_date) values (?, ?, ?, ?, ?, ?)";
     private final String UPDATE_CERTIFICATE = "UPDATE certificate SET %s WHERE id = ?";
-    private final String ID_EXISTS = "SELECT EXISTS(SELECT * FROM tag WHERE id = ?)";
+    private final String ID_EXISTS = "SELECT EXISTS(SELECT * FROM certificate WHERE id = ?)";
     private final String SET_NAME = "name = ?";
     private final String SET_DESCRIPTION = "description = ?";
     private final String SET_DURATION = "duration = ?";
