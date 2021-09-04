@@ -6,6 +6,7 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.dto.CertificateDTO;
 import com.epam.esm.service.dto.TagDTO;
 import com.epam.esm.service.dto.mapper.CertificateDtoMapper;
+import com.epam.esm.service.dto.mapper.DtoMapper;
 import com.epam.esm.util.CertificateFilter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -38,7 +39,7 @@ class CertificateServiceImplTest {
             .withCreateDate(LocalDate.now())
             .withLastUpdateDate(LocalDate.now())
             .build();
-    private static final CertificateDtoMapper certificateDtoMapper = new CertificateDtoMapper();
+    private static final DtoMapper<Certificate, CertificateDTO> certificateDtoMapper = new CertificateDtoMapper();
     private static CertificateDao certificateDao;
     private static CertificateService certificateService;
 

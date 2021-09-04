@@ -4,6 +4,7 @@ import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDTO;
+import com.epam.esm.service.dto.mapper.DtoMapper;
 import com.epam.esm.service.dto.mapper.TagDtoMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ import static org.mockito.Mockito.when;
 class TagServiceImplTest {
     private static final TagDTO TAG = new TagDTO(1, "tag");
 
-    private static final TagDtoMapper tagDtoMapper = new TagDtoMapper();
+    private static final DtoMapper<Tag, TagDTO> tagDtoMapper = new TagDtoMapper();
     private static TagDao tagDao;
     private static TagService tagService;
 
