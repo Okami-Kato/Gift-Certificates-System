@@ -49,6 +49,7 @@ class TagDaoImplTest {
     void delete() {
         int generatedId = tagDao.create(FIRST_TAG).getId();
         assertThrows(DaoException.class, () -> tagDao.create(FIRST_TAG));
+        assertTrue(tagDao.idExists(generatedId));
         assertTrue(tagDao.get(generatedId).isPresent());
         assertTrue(tagDao.delete(generatedId));
         assertFalse(tagDao.get(generatedId).isPresent());

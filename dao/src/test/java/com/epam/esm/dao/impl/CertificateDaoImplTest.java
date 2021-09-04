@@ -66,6 +66,7 @@ class CertificateDaoImplTest {
     void delete() {
         int generatedId = certificateDao.create(FIRST_CERTIFICATE).getId();
         assertTrue(certificateDao.get(generatedId).isPresent());
+        assertTrue(certificateDao.idExists(generatedId));
         assertTrue(certificateDao.delete(generatedId));
         assertFalse(certificateDao.get(generatedId).isPresent());
     }
