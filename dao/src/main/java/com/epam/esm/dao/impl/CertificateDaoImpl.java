@@ -37,14 +37,9 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     private final String DELETE_CERTIFICATE = "DELETE FROM certificate WHERE id = ?";
     private final String INSERT_CERTIFICATE = "INSERT INTO certificate " +
             "(name, description, price, duration, create_date, last_update_date) values (?, ?, ?, ?, ?, ?)";
-    private final String UPDATE_CERTIFICATE = "UPDATE certificate SET %s WHERE id = ?";
+    private final String UPDATE_CERTIFICATE = "UPDATE certificate " +
+            "SET name = ?, description = ?, price = ?, duration = ?, last_update_date = ? WHERE id = ?";
     private final String ID_EXISTS = "SELECT EXISTS(SELECT * FROM certificate WHERE id = ?)";
-    private final String SET_NAME = "name = ?";
-    private final String SET_DESCRIPTION = "description = ?";
-    private final String SET_DURATION = "duration = ?";
-    private final String SET_PRICE = "price = ?";
-    private final String SET_CREATE_DATE = "create_date = ?";
-    private final String SET_LAST_UPDATE_DATE = "last_update_date = ?";
     private final String ADD_TAG = "INSERT INTO certificate_tag values (?, ?)";
     private final String REMOVE_TAG = "DELETE FROM certificate_tag where certificate_id = ? and tag_id = ?";
     private final String SELECT_ALL_BY_TAGS = "SELECT DISTINCT C.* FROM certificate C INNER JOIN certificate_tag CT ON C.id = ct.certificate_id WHERE tag_id IN (%s)";
@@ -106,40 +101,24 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
 
     @Override
     public boolean update(Certificate certificate) {
-        StringBuilder query = new StringBuilder();
-        List<Object> args = new LinkedList<>();
-        if (certificate.getName() != null) {
-            query.append(SET_NAME).append(",");
-            args.add(certificate.getName());
-        }
-        if (certificate.getDescription() != null) {
-            query.append(SET_DESCRIPTION).append(",");
-            args.add(certificate.getDescription());
-        }
-        if (certificate.getDuration() != null) {
-            query.append(SET_DURATION).append(",");
-            args.add(certificate.getDuration());
-        }
-        if (certificate.getPrice() != null) {
-            query.append(SET_PRICE).append(",");
-            args.add(certificate.getPrice());
-        }
-        if (certificate.getCreateDate() != null) {
-            query.append(SET_CREATE_DATE).append(",");
-            args.add(certificate.getCreateDate());
-        }
-        if (certificate.getLastUpdateDate() != null) {
-            query.append(SET_LAST_UPDATE_DATE).append(",");
-            args.add(certificate.getLastUpdateDate());
-        }
-        query.deleteCharAt(query.length() - 1);
-        args.add(certificate.getId());
-        return jdbcTemplate.update(String.format(UPDATE_CERTIFICATE, query), args.toArray()) > 0;
+        return jdbcTemplate.update(UPDATE_CERTIFICATE,
+                certificate.getName(),
+                certificate.getDescription(),
+                certificate.getPrice(),
+                certificate.getDuration(),
+                certificate.getLastUpdateDate(),
+                certificate.getId()
+        ) > 0;
     }
 
     @Override
     public boolean delete(int id) {
         return jdbcTemplate.update(DELETE_CERTIFICATE, id) > 0;
+    }
+
+    @Override
+    public boolean idExists(int id) {
+        return jdbcTemplate.queryForObject(ID_EXISTS, Boolean.class, id);
     }
 
     @Override
@@ -166,11 +145,6 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
                             certificateId, tagId)
             );
         }
-    }
-
-    @Override
-    public boolean idExists(int id) {
-        return jdbcTemplate.queryForObject(ID_EXISTS, Boolean.class, id);
     }
 
     @Override
