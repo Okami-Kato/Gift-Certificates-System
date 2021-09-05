@@ -9,6 +9,7 @@ public enum ControllerErrorCode {
     DUPLICATE_CERTIFICATE_TAG(40901),
     CERTIFICATE_VALIDATION_FAILURE(40301),
     TAG_VALIDATION_FAILURE(40302),
+    BAD_REQUEST(400),
     SERVER_ERROR(500);
     private final int value;
 

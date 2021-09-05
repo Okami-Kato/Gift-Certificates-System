@@ -22,6 +22,9 @@ public class CertificateValidator {
     private static final String DURATION_PROPERTY = "duration";
 
     public Optional<ConstraintViolation> validateName(String name) {
+        if (name == null) {
+            return Optional.of(new ConstraintViolation(NAME_PROPERTY, NULL_MESSAGE));
+        }
         if (name.matches(NAME_REGEX)) {
             return Optional.empty();
         } else {
@@ -30,6 +33,9 @@ public class CertificateValidator {
     }
 
     public Optional<ConstraintViolation> validatePrice(Integer price) {
+        if (price == null) {
+            return Optional.of(new ConstraintViolation(PRICE_PROPERTY, NULL_MESSAGE));
+        }
         if (price > 0) {
             return Optional.empty();
         } else {
@@ -38,6 +44,9 @@ public class CertificateValidator {
     }
 
     public Optional<ConstraintViolation> validateDuration(Integer duration) {
+        if (duration == null) {
+            return Optional.of(new ConstraintViolation(DURATION_PROPERTY, NULL_MESSAGE));
+        }
         if (duration > 0) {
             return Optional.empty();
         } else {
@@ -45,34 +54,20 @@ public class CertificateValidator {
         }
     }
 
-    public Set<ConstraintViolation> validateCertificate(CertificateDTO certificate, boolean requireNotNullFields) {
+    public Optional<ConstraintViolation> validateDescription(String description) {
+        if (description == null) {
+            return Optional.of(new ConstraintViolation(DESCRIPTION_PROPERTY, NULL_MESSAGE));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public Set<ConstraintViolation> validateCertificate(CertificateDTO certificate) {
         Set<ConstraintViolation> violations = new HashSet<>();
-
-        if (certificate.getName() == null) {
-            if (requireNotNullFields)
-                violations.add(new ConstraintViolation(NAME_PROPERTY, NULL_MESSAGE));
-        } else {
-            validateName(certificate.getName()).ifPresent(violations::add);
-        }
-
-        if (certificate.getDescription() == null) {
-            if (requireNotNullFields)
-                violations.add(new ConstraintViolation(DESCRIPTION_PROPERTY, NULL_MESSAGE));
-        }
-
-        if (certificate.getPrice() == null) {
-            if (requireNotNullFields)
-                violations.add(new ConstraintViolation(PRICE_PROPERTY, NULL_MESSAGE));
-        } else {
-            validatePrice(certificate.getPrice()).ifPresent(violations::add);
-        }
-
-        if (certificate.getDuration() == null) {
-            if (requireNotNullFields)
-                violations.add(new ConstraintViolation(DURATION_PROPERTY, NULL_MESSAGE));
-        } else {
-            validateDuration(certificate.getDuration()).ifPresent(violations::add);
-        }
+        validateName(certificate.getName()).ifPresent(violations::add);
+        validatePrice(certificate.getPrice()).ifPresent(violations::add);
+        validateDuration(certificate.getDuration()).ifPresent(violations::add);
+        validateDescription(certificate.getDescription()).ifPresent(violations::add);
 
         return violations;
     }

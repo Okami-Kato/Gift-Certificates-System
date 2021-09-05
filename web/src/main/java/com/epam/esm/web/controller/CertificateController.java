@@ -8,8 +8,14 @@ import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.util.CertificateFilter;
 import com.epam.esm.web.exception.ControllerError;
 import com.epam.esm.web.exception.ControllerErrorCode;
+import com.epam.esm.web.exception.ResourceNotFoundException;
 import com.epam.esm.web.validation.CertificateValidator;
 import com.epam.esm.web.validation.ConstraintViolation;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.epam.esm.web.exception.ErrorMessage.FAILED_TO_APPLY_PATCH;
 import static com.epam.esm.web.exception.ErrorMessage.RELATIONSHIP_EXISTS;
 import static com.epam.esm.web.exception.ErrorMessage.RELATIONSHIP_NOT_FOUND;
 import static com.epam.esm.web.exception.ErrorMessage.RESOURCE_NOT_FOUND;
@@ -41,14 +48,16 @@ public class CertificateController {
     private final CertificateService certificateService;
     private final TagService tagService;
     private final CertificateValidator certificateValidator;
+    private final ObjectMapper objectMapper;
+
 
     @Autowired
-    public CertificateController(CertificateService certificateService, TagService tagService, CertificateValidator certificateValidator) {
+    public CertificateController(CertificateService certificateService, TagService tagService, CertificateValidator certificateValidator, ObjectMapper objectMapper) {
         this.certificateService = certificateService;
         this.tagService = tagService;
         this.certificateValidator = certificateValidator;
+        this.objectMapper = objectMapper;
     }
-
 
     /**
      * Retrieves all gift certificates, that match given certificateFilter.
@@ -90,7 +99,7 @@ public class CertificateController {
     @PostMapping(value = "/certificates")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Object> createCertificate(@RequestBody CertificateDTO certificate) {
-        Set<ConstraintViolation> violations = certificateValidator.validateCertificate(certificate, true);
+        Set<ConstraintViolation> violations = certificateValidator.validateCertificate(certificate);
         if (!violations.isEmpty()) {
             return new ResponseEntity<>(
                     new ControllerError(violations, ControllerErrorCode.CERTIFICATE_VALIDATION_FAILURE),
@@ -143,29 +152,40 @@ public class CertificateController {
      * Updates certificate with given id. New values are taken from not null fields of given certificate.
      *
      * @param certificateId id of certificate to be updated
-     * @param certificate   container of new values.
+     * @param patch         array of patch methods.
      * @return updated certificate, if service call was successful.<br/>
      * {@link ControllerError}, if given certificate failed validation process, or certificate with given id wasn't found.
      */
-    @PatchMapping(value = "/certificates/{certificateId}")
-    public ResponseEntity<Object> updateCertificate(@PathVariable int certificateId, @RequestBody CertificateDTO certificate) {
-        Set<ConstraintViolation> violations = certificateValidator.validateCertificate(certificate, false);
-        if (!violations.isEmpty()) {
-            return new ResponseEntity<>(
-                    new ControllerError(violations, ControllerErrorCode.CERTIFICATE_VALIDATION_FAILURE),
-                    HttpStatus.FORBIDDEN);
-        }
-        certificate.setLastUpdateDate(LocalDate.now());
-        certificate.setId(certificateId);
-        if (certificateService.update(certificate)) {
-            return getCertificate(certificateId);
-        } else {
-            return new ResponseEntity<>(
-                    new ControllerError(
+    @PatchMapping(path = "/certificates/{certificateId}", consumes = "application/json-patch+json")
+    public ResponseEntity<Object> updateCertificate(@PathVariable int certificateId, @RequestBody JsonPatch patch) {
+        try {
+            CertificateDTO certificateDTO = certificateService.get(certificateId).orElseThrow(
+                    () -> new ResourceNotFoundException(
                             String.format(RESOURCE_NOT_FOUND, "id=" + certificateId),
-                            ControllerErrorCode.CERTIFICATE_NOT_FOUND),
-                    HttpStatus.NOT_FOUND);
+                            ControllerErrorCode.CERTIFICATE_NOT_FOUND
+                    ));
+            CertificateDTO certificatePatched = applyPatchToCustomer(patch, certificateDTO);
+            Set<ConstraintViolation> violations = certificateValidator.validateCertificate(certificatePatched);
+            if (!violations.isEmpty()) {
+                return new ResponseEntity<>(
+                        new ControllerError(violations, ControllerErrorCode.CERTIFICATE_VALIDATION_FAILURE),
+                        HttpStatus.FORBIDDEN);
+            }
+            certificatePatched.setLastUpdateDate(LocalDate.now());
+            certificateService.update(certificatePatched);
+            return ResponseEntity.ok(certificatePatched);
+        } catch (JsonPatchException e) {
+            return new ResponseEntity<>(new ControllerError(FAILED_TO_APPLY_PATCH, ControllerErrorCode.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(new ControllerError(e), HttpStatus.NOT_FOUND);
+        } catch (JsonProcessingException e) {
+            return new ResponseEntity<>(new ControllerError(FAILED_TO_APPLY_PATCH, ControllerErrorCode.SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private CertificateDTO applyPatchToCustomer(JsonPatch patch, CertificateDTO certificateDTO) throws JsonPatchException, JsonProcessingException {
+        JsonNode patched = patch.apply(objectMapper.valueToTree(certificateDTO));
+        return objectMapper.treeToValue(patched, CertificateDTO.class);
     }
 
     /**

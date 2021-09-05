@@ -9,6 +9,11 @@ public class ControllerError {
         this.errorCode = errorCode.getValue();
     }
 
+    public ControllerError(ResourceNotFoundException e){
+        this.errorExplanation = e.getMessage();
+        this.errorCode = e.getErrorCode().getValue();
+    }
+
     public int getErrorCode() {
         return errorCode;
     }
