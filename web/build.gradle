@@ -20,17 +20,19 @@ war.dependsOn explodedWar
 
 dependencies {
     implementation project(":service")
+
     implementation 'org.springframework:spring-webmvc:5.3.9'
+
     implementation 'jstl:jstl:1.2'
+
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.5'
     implementation 'com.github.fge:json-patch:1.9'
 
-
     compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
 
     testImplementation 'javax.servlet:javax.servlet-api:4.0.1'
-    testImplementation 'org.mockito:mockito-core:3.12.2'
+    testImplementation 'org.mockito:mockito-core:3.12.4'
     testImplementation 'org.springframework:spring-test:5.3.9'
     testImplementation 'org.hamcrest:hamcrest-all:1.3'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
