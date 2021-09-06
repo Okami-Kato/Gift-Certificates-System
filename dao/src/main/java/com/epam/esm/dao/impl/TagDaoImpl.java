@@ -25,7 +25,7 @@ import java.util.Optional;
 public class TagDaoImpl extends AbstractDao implements TagDao {
     private final String SELECT_TAG = "SELECT id, name FROM tag WHERE id = ?";
     private final String SELECT_ALL_TAGS = "SELECT id, name FROM tag";
-    private final String SELECT_All_TAGS_BY_CERTIFICATE_ID = "SELECT T.* FROM tag T INNER JOIN certificate_tag CT on T.id = CT.tag_id where certificate_id = ?";
+    private final String SELECT_All_TAGS_BY_CERTIFICATE_ID = "SELECT T.id, T.name FROM tag T INNER JOIN certificate_tag CT on T.id = CT.tag_id where certificate_id = ?";
     private final String DELETE_TAG = "DELETE FROM tag WHERE id = ?";
     private final String INSERT_TAG = "INSERT INTO tag (name) values (?)";
     private final String NAME_EXISTS = "SELECT EXISTS(SELECT name FROM tag WHERE name = ?)";
