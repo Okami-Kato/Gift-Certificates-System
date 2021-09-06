@@ -168,16 +168,19 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
             args.add(filter.getTagName());
             query.append(" ").append(JOIN_ON_TAG_NAME);
         } else if (filter.getNamePart() != null || filter.getDescriptionPart() != null) {
-            query.append(" ").append("WHERE 1=1");
+            query.append(" ").append("WHERE");
         }
 
-        if (filter.getNamePart() != null) {
+        if (filter.getNamePart() != null && filter.getDescriptionPart() != null) {
             args.add("%" + filter.getNamePart() + "%");
-            query.append(" ").append("AND c.name LIKE ?");
-        }
-        if (filter.getDescriptionPart() != null) {
             args.add("%" + filter.getDescriptionPart() + "%");
-            query.append(" ").append("AND c.description LIKE ?");
+            query.append(" ").append("c.name LIKE ? AND c.description LIKE ?");
+        } else if (filter.getDescriptionPart() != null) {
+            args.add("%" + filter.getDescriptionPart() + "%");
+            query.append(" ").append("c.description LIKE ?");
+        }else if (filter.getNamePart() != null) {
+            args.add("%" + filter.getNamePart() + "%");
+            query.append(" ").append("c.name LIKE ?");
         }
 
         if (filter.getSort() != null) {
