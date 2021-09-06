@@ -32,22 +32,22 @@ import java.util.Optional;
 
 @Repository
 public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
-    private final String SELECT_CERTIFICATE = "SELECT * FROM certificate WHERE id = ?";
-    private final String SELECT_ALL_CERTIFICATES = "SELECT c.* FROM certificate c";
+    private final String SELECT_CERTIFICATE = "SELECT id, name, description, duration, price, create_date, " +
+            "last_update_date FROM certificate WHERE id = ?";
+    private final String SELECT_ALL_CERTIFICATES = "SELECT c.id, c.name, c.description, c.duration, c.price, " +
+            "c.create_date, c.last_update_date FROM certificate c";
     private final String DELETE_CERTIFICATE = "DELETE FROM certificate WHERE id = ?";
     private final String INSERT_CERTIFICATE = "INSERT INTO certificate " +
             "(name, description, price, duration, create_date, last_update_date) values (?, ?, ?, ?, ?, ?)";
     private final String UPDATE_CERTIFICATE = "UPDATE certificate " +
             "SET name = ?, description = ?, price = ?, duration = ?, last_update_date = ? WHERE id = ?";
-    private final String ID_EXISTS = "SELECT EXISTS(SELECT * FROM certificate WHERE id = ?)";
+    private final String ID_EXISTS = "SELECT EXISTS(SELECT id FROM certificate WHERE id = ?)";
     private final String ADD_TAG = "INSERT INTO certificate_tag values (?, ?)";
     private final String REMOVE_TAG = "DELETE FROM certificate_tag where certificate_id = ? and tag_id = ?";
-    private final String SELECT_ALL_BY_TAGS = "SELECT DISTINCT C.* FROM certificate C INNER JOIN certificate_tag CT ON C.id = ct.certificate_id WHERE tag_id IN (%s)";
-    private final String JOIN_ON_TAG_NAME = "JOIN certificate_tag ct on C.id = ct.certificate_id JOIN tag t on ct.tag_id = t.id WHERE t.name = ?";
-    private final String WHERE = "WHERE 1=1";
-    private final String AND_NAME_LIKE = "AND name LIKE ?";
-    private final String AND_DESCRIPTION_LIKE = "AND description LIKE ?";
-    private final String ORDER_BY = "ORDER BY";
+    private final String SELECT_ALL_BY_TAGS = "SELECT DISTINCT c.* FROM certificate c INNER JOIN certificate_tag ct " +
+            "ON c.id = ct.certificate_id WHERE tag_id IN (%s)";
+    private final String JOIN_ON_TAG_NAME = "JOIN certificate_tag ct on c.id = ct.certificate_id JOIN tag t " +
+            "on ct.tag_id = t.id WHERE t.name = ?";
 
     private final String TABLE_NAME = "CERTIFICATE";
     private final List<String> columns = new LinkedList<>();
@@ -168,16 +168,16 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
             args.add(filter.getTagName());
             query.append(" ").append(JOIN_ON_TAG_NAME);
         } else if (filter.getNamePart() != null || filter.getDescriptionPart() != null) {
-            query.append(" ").append(WHERE);
+            query.append(" ").append("WHERE 1=1");
         }
 
         if (filter.getNamePart() != null) {
             args.add("%" + filter.getNamePart() + "%");
-            query.append(" ").append(AND_NAME_LIKE);
+            query.append(" ").append("AND c.name LIKE ?");
         }
         if (filter.getDescriptionPart() != null) {
             args.add("%" + filter.getDescriptionPart() + "%");
-            query.append(" ").append(AND_DESCRIPTION_LIKE);
+            query.append(" ").append("AND c.description LIKE ?");
         }
 
         if (filter.getSort() != null) {
@@ -187,7 +187,7 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
     }
 
     private String extractQuery(Sort sort) {
-        StringBuilder query = new StringBuilder(ORDER_BY);
+        StringBuilder query = new StringBuilder("ORDER BY");
         for (Sort.Order order : sort.getOrders()) {
             if (!columnExists(order.getProperty()))
                 throw new DaoException(DaoError.BAD_SORT_PROPERTIES, String.format("Property (%s) doesn't exist", order.getProperty()));

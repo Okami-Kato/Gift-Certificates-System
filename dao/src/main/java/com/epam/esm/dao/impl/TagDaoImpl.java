@@ -2,7 +2,7 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.AbstractDao;
 import com.epam.esm.dao.TagDao;
-import com.epam.esm.dao.exception.DaoErrorCode;
+import com.epam.esm.dao.exception.DaoError;
 import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.dao.mapper.TagMapper;
 import com.epam.esm.entity.Tag;
@@ -23,13 +23,13 @@ import java.util.Optional;
 
 @Repository
 public class TagDaoImpl extends AbstractDao implements TagDao {
-    private final String SELECT_TAG = "SELECT * FROM tag WHERE id = ?";
-    private final String SELECT_ALL_TAGS = "SELECT * FROM tag";
+    private final String SELECT_TAG = "SELECT id, name FROM tag WHERE id = ?";
+    private final String SELECT_ALL_TAGS = "SELECT id, name FROM tag";
     private final String SELECT_All_TAGS_BY_CERTIFICATE_ID = "SELECT T.* FROM tag T INNER JOIN certificate_tag CT on T.id = CT.tag_id where certificate_id = ?";
     private final String DELETE_TAG = "DELETE FROM tag WHERE id = ?";
     private final String INSERT_TAG = "INSERT INTO tag (name) values (?)";
-    private final String NAME_EXISTS = "SELECT EXISTS(SELECT * FROM tag WHERE name = ?)";
-    private final String ID_EXISTS = "SELECT EXISTS(SELECT * FROM tag WHERE id = ?)";
+    private final String NAME_EXISTS = "SELECT EXISTS(SELECT name FROM tag WHERE name = ?)";
+    private final String ID_EXISTS = "SELECT EXISTS(SELECT id FROM tag WHERE id = ?)";
 
     @Autowired
     public TagDaoImpl(DataSource dataSource) {
