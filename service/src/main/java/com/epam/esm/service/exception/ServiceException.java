@@ -1,18 +1,24 @@
 package com.epam.esm.service.exception;
 
 public class ServiceException extends RuntimeException {
-    private final ServiceErrorCode errorCode;
+    private final ServiceError serviceError;
+    private Object[] args;
 
-    public ServiceException(ServiceErrorCode errorCode) {
-        this.errorCode = errorCode;
-    }
-
-    public ServiceException(ServiceErrorCode errorCode, String message) {
+    public ServiceException(ServiceError serviceError, String message) {
         super(message);
-        this.errorCode = errorCode;
+        this.serviceError = serviceError;
     }
 
-    public ServiceErrorCode getErrorCode() {
-        return errorCode;
+    public ServiceException(ServiceError serviceError, String message, Object... args) {
+        this(serviceError, message);
+        this.args = args;
+    }
+
+    public Object[] getArgs() {
+        return args;
+    }
+
+    public ServiceError getError() {
+        return serviceError;
     }
 }

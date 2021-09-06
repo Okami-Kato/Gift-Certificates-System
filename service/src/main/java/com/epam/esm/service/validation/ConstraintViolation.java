@@ -1,4 +1,4 @@
-package com.epam.esm.web.validation;
+package com.epam.esm.service.validation;
 
 import java.util.Objects;
 

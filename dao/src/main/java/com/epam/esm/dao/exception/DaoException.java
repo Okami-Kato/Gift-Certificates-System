@@ -1,18 +1,18 @@
 package com.epam.esm.dao.exception;
 
 public class DaoException extends RuntimeException {
-    private final DaoErrorCode errorCode;
+    private final DaoError daoError;
 
-    public DaoException(DaoErrorCode errorCode) {
-        this.errorCode = errorCode;
+    public DaoException(DaoError daoError) {
+        this.daoError = daoError;
     }
 
-    public DaoException(DaoErrorCode errorCode, String message) {
+    public DaoException(DaoError daoError, String message) {
         super(message);
-        this.errorCode = errorCode;
+        this.daoError = daoError;
     }
 
-    public DaoErrorCode getErrorCode() {
-        return errorCode;
+    public DaoError getDaoError() {
+        return daoError;
     }
 }

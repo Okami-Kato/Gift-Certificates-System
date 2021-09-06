@@ -1,31 +1,39 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
-import com.epam.esm.dao.exception.DaoErrorCode;
+import com.epam.esm.dao.exception.DaoError;
 import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDTO;
 import com.epam.esm.service.dto.mapper.DtoMapper;
-import com.epam.esm.service.exception.ServiceErrorCode;
+import com.epam.esm.service.exception.ServiceError;
 import com.epam.esm.service.exception.ServiceException;
+import com.epam.esm.service.validation.ConstraintViolation;
+import com.epam.esm.service.validation.TagValidator;
+import com.epam.esm.service.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.epam.esm.service.exception.ErrorMessage.FAILED_VALIDATION;
 
 @Service
 @Transactional
 public class TagServiceImpl implements TagService {
     private final TagDao tagDao;
+    private final Validator<TagDTO> validator;
     private final DtoMapper<Tag, TagDTO> tagDtoMapper;
 
     @Autowired
-    public TagServiceImpl(TagDao tagDao, DtoMapper<Tag, TagDTO> tagDtoMapper) {
+    public TagServiceImpl(TagDao tagDao, Validator<TagDTO> validator, DtoMapper<Tag, TagDTO> tagDtoMapper) {
         this.tagDao = tagDao;
+        this.validator = validator;
         this.tagDtoMapper = tagDtoMapper;
     }
 
@@ -42,6 +50,10 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDTO create(TagDTO tag) {
+        Set<ConstraintViolation> violations = validator.validate(tag);
+        if (!violations.isEmpty()) {
+            throw new ServiceException(ServiceError.TAG_VALIDATION_FAILURE, FAILED_VALIDATION, violations.toArray());
+        }
         Tag result = null;
         try {
             result = tagDao.create(tagDtoMapper.toEntity(tag));

@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan({"com.epam.esm.service.impl", "com.epam.esm.service.dto.mapper"})
+@ComponentScan({"com.epam.esm.service.impl", "com.epam.esm.service.dto.mapper", "com.epam.esm.service.validation"})
 @Import({DaoConfig.class})
 @EnableTransactionManagement
 public class ServiceConfig {

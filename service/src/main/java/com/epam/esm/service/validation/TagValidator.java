@@ -1,4 +1,4 @@
-package com.epam.esm.web.validation;
+package com.epam.esm.service.validation;
 
 import com.epam.esm.service.dto.TagDTO;
 import org.springframework.stereotype.Component;
@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
-public class TagValidator {
+public class TagValidator implements Validator<TagDTO> {
     private static final String NAME_REGEX = "^[\\w\\s]{1,25}$";
     private static final String NAME_MESSAGE = "Tag name must be 1-25 characters. Can contain letters, numbers and whitespaces";
     private static final String NULL_MESSAGE = "Property can't be null";
@@ -22,12 +22,12 @@ public class TagValidator {
         }
     }
 
-    public Set<ConstraintViolation> validateTag(TagDTO tag, boolean requireNotNullFields) {
+    @Override
+    public Set<ConstraintViolation> validate(TagDTO tag) {
         Set<ConstraintViolation> violations = new HashSet<>();
 
         if (tag.getName() == null) {
-            if (requireNotNullFields)
-                violations.add(new ConstraintViolation(NAME_PROPERTY, NULL_MESSAGE));
+            violations.add(new ConstraintViolation(NAME_PROPERTY, NULL_MESSAGE));
         } else {
             validateName(tag.getName()).ifPresent(violations::add);
         }

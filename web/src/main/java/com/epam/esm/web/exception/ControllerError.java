@@ -2,23 +2,29 @@ package com.epam.esm.web.exception;
 
 public class ControllerError {
     private final int errorCode;
-    private final Object errorExplanation;
+    private final String errorMessage;
+    private Object[] args;
 
-    public ControllerError(Object errorExplanation, ControllerErrorCode errorCode) {
-        this.errorExplanation = errorExplanation;
-        this.errorCode = errorCode.getValue();
+    public ControllerError(String errorExplanation, ControllerErrorCode errorCode) {
+        this.errorMessage = errorExplanation;
+        this.errorCode = errorCode.getCode();
     }
 
-    public ControllerError(ResourceNotFoundException e){
-        this.errorExplanation = e.getMessage();
-        this.errorCode = e.getErrorCode().getValue();
+    public ControllerError(ControllerException e){
+        this.errorMessage = e.getMessage();
+        this.errorCode = e.getErrorCode().getCode();
+        this.args = e.getArgs();
     }
 
     public int getErrorCode() {
         return errorCode;
     }
 
-    public Object getErrorExplanation() {
-        return errorExplanation;
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public Object[] getArgs() {
+        return args;
     }
 }
