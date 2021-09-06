@@ -5,7 +5,7 @@ import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDTO;
 import com.epam.esm.service.exception.ServiceError;
 import com.epam.esm.service.exception.ServiceException;
-import com.epam.esm.web.exception.ControllerErrorCode;
+import com.epam.esm.web.exception.WebErrorCode;
 import com.epam.esm.web.exception.ControllerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -65,11 +65,11 @@ public class TagController {
             return tagService.create(tag);
         } catch (ServiceException e) {
             if (e.getError().equals(ServiceError.DUPLICATE_TAG_NAME)) {
-                throw new ControllerException(e.getMessage(), ControllerErrorCode.DUPLICATE_TAG_NAME);
+                throw new ControllerException(e.getMessage(), WebErrorCode.DUPLICATE_TAG_NAME);
             } else if (e.getError().equals(ServiceError.TAG_VALIDATION_FAILURE)) {
-                throw new ControllerException(e.getMessage(), ControllerErrorCode.TAG_VALIDATION_FAILURE, e.getArgs());
+                throw new ControllerException(e.getMessage(), WebErrorCode.TAG_VALIDATION_FAILURE, e.getArgs());
             } else {
-                throw new ControllerException(UNEXPECTED_ERROR, ControllerErrorCode.SERVER_ERROR);
+                throw new ControllerException(UNEXPECTED_ERROR, WebErrorCode.SERVER_ERROR);
             }
         }
     }
@@ -86,7 +86,7 @@ public class TagController {
         Optional<TagDTO> tag = tagService.get(id);
         return tag.orElseThrow(() -> new ControllerException(
                 String.format(RESOURCE_NOT_FOUND, "id=" + id),
-                ControllerErrorCode.TAG_NOT_FOUND
+                WebErrorCode.TAG_NOT_FOUND
         ));
     }
 
@@ -102,7 +102,7 @@ public class TagController {
         if (!tagService.delete(id)) {
             throw new ControllerException(
                     String.format(RESOURCE_NOT_FOUND, "id=" + id),
-                    ControllerErrorCode.TAG_NOT_FOUND
+                    WebErrorCode.TAG_NOT_FOUND
             );
         }
     }
@@ -119,7 +119,7 @@ public class TagController {
         final List<TagDTO> tags = tagService.getAllByCertificateId(id);
         if (tags.isEmpty() && !certificateService.idExists(id)) {
             throw new ControllerException(
-                    String.format(RESOURCE_NOT_FOUND, "id=" + id), ControllerErrorCode.CERTIFICATE_NOT_FOUND
+                    String.format(RESOURCE_NOT_FOUND, "id=" + id), WebErrorCode.CERTIFICATE_NOT_FOUND
             );
         }
         return tags;

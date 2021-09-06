@@ -2,7 +2,7 @@ package com.epam.esm.web.exception;
 
 import org.springframework.http.HttpStatus;
 
-public enum ControllerErrorCode {
+public enum WebErrorCode {
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, 0),
     CERTIFICATE_NOT_FOUND(HttpStatus.NOT_FOUND, 1),
     TAG_NOT_FOUND(HttpStatus.NOT_FOUND, 2),
@@ -16,7 +16,7 @@ public enum ControllerErrorCode {
     private final int code;
     private final HttpStatus status;
 
-    ControllerErrorCode(HttpStatus status, int code) {
+    WebErrorCode(HttpStatus status, int code) {
         this.status = status;
         this.code = code;
     }

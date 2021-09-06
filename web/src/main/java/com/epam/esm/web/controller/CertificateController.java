@@ -6,7 +6,7 @@ import com.epam.esm.service.dto.CertificateDTO;
 import com.epam.esm.service.exception.ServiceError;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.util.CertificateFilter;
-import com.epam.esm.web.exception.ControllerErrorCode;
+import com.epam.esm.web.exception.WebErrorCode;
 import com.epam.esm.web.exception.ControllerException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -69,9 +69,9 @@ public class CertificateController {
                 return certificateService.getAll(certificateFilter);
             } catch (ServiceException e) {
                 if (e.getError().equals(ServiceError.BAD_SORT_PROPERTY)) {
-                    throw new ControllerException(e.getMessage(), ControllerErrorCode.BAD_SORT_PROPERTY);
+                    throw new ControllerException(e.getMessage(), WebErrorCode.BAD_SORT_PROPERTY);
                 } else {
-                    throw new ControllerException(e.getMessage(), ControllerErrorCode.SERVER_ERROR);
+                    throw new ControllerException(e.getMessage(), WebErrorCode.SERVER_ERROR);
                 }
             }
         } else {
@@ -97,9 +97,9 @@ public class CertificateController {
         } catch (ServiceException e) {
             if (e.getError().equals(ServiceError.CERTIFICATE_VALIDATION_FAILURE)) {
                 throw new ControllerException(e.getMessage(),
-                        ControllerErrorCode.CERTIFICATE_VALIDATION_FAILURE, e.getArgs());
+                        WebErrorCode.CERTIFICATE_VALIDATION_FAILURE, e.getArgs());
             } else {
-                throw new ControllerException(UNEXPECTED_ERROR, ControllerErrorCode.SERVER_ERROR);
+                throw new ControllerException(UNEXPECTED_ERROR, WebErrorCode.SERVER_ERROR);
             }
         }
     }
@@ -116,7 +116,7 @@ public class CertificateController {
         Optional<CertificateDTO> certificate = certificateService.get(id);
         return certificate.orElseThrow(() -> new ControllerException(
                 String.format(RESOURCE_NOT_FOUND, "id=" + id),
-                ControllerErrorCode.CERTIFICATE_NOT_FOUND
+                WebErrorCode.CERTIFICATE_NOT_FOUND
         ));
     }
 
@@ -132,7 +132,7 @@ public class CertificateController {
         if (!certificateService.delete(id)) {
             throw new ControllerException(
                     String.format(RESOURCE_NOT_FOUND, "id=" + id),
-                    ControllerErrorCode.CERTIFICATE_NOT_FOUND
+                    WebErrorCode.CERTIFICATE_NOT_FOUND
             );
         }
     }
@@ -152,7 +152,7 @@ public class CertificateController {
         CertificateDTO certificateDTO = certificateService.get(id).orElseThrow(
                 () -> new ControllerException(
                         String.format(RESOURCE_NOT_FOUND, "id=" + id),
-                        ControllerErrorCode.CERTIFICATE_NOT_FOUND
+                        WebErrorCode.CERTIFICATE_NOT_FOUND
                 ));
         CertificateDTO certificatePatched = applyPatchToCustomer(patch, certificateDTO);
         certificatePatched.setLastUpdateDate(LocalDate.now());
@@ -161,9 +161,9 @@ public class CertificateController {
         } catch (ServiceException e) {
             if (e.getError().equals(ServiceError.CERTIFICATE_VALIDATION_FAILURE)) {
                 throw new ControllerException(e.getMessage(),
-                        ControllerErrorCode.CERTIFICATE_VALIDATION_FAILURE, e.getArgs());
+                        WebErrorCode.CERTIFICATE_VALIDATION_FAILURE, e.getArgs());
             } else {
-                throw new ControllerException(UNEXPECTED_ERROR, ControllerErrorCode.SERVER_ERROR);
+                throw new ControllerException(UNEXPECTED_ERROR, WebErrorCode.SERVER_ERROR);
             }
         }
         return certificatePatched;
@@ -186,7 +186,7 @@ public class CertificateController {
         List<CertificateDTO> certificates = certificateService.getAll(id);
         if (certificates.isEmpty() && !tagService.idExists(id)) {
             throw new ControllerException(
-                    String.format(RESOURCE_NOT_FOUND, "id=" + id), ControllerErrorCode.TAG_NOT_FOUND
+                    String.format(RESOURCE_NOT_FOUND, "id=" + id), WebErrorCode.TAG_NOT_FOUND
             );
         }
         return certificates;
@@ -209,7 +209,7 @@ public class CertificateController {
             if (e.getError().equals(ServiceError.DUPLICATE_CERTIFICATE_TAG)) {
                 throw new ControllerException(
                         String.format(RELATIONSHIP_EXISTS, "certificateId=" + certificateId + ", tagId=" + tagId),
-                        ControllerErrorCode.DUPLICATE_CERTIFICATE_TAG
+                        WebErrorCode.DUPLICATE_CERTIFICATE_TAG
                 );
             } else if (e.getError().equals(ServiceError.BAD_KEY)) {
                 StringBuilder msg = new StringBuilder();
@@ -219,9 +219,9 @@ public class CertificateController {
                 if (!tagService.idExists(tagId)) {
                     msg.append("tagId=").append(tagId);
                 }
-                throw new ControllerException(String.format(RESOURCE_NOT_FOUND, msg), ControllerErrorCode.ENTITY_NOT_FOUND);
+                throw new ControllerException(String.format(RESOURCE_NOT_FOUND, msg), WebErrorCode.ENTITY_NOT_FOUND);
             } else {
-                throw new ControllerException(UNEXPECTED_ERROR, ControllerErrorCode.SERVER_ERROR);
+                throw new ControllerException(UNEXPECTED_ERROR, WebErrorCode.SERVER_ERROR);
             }
         }
     }
@@ -239,7 +239,7 @@ public class CertificateController {
         if (!certificateService.removeTag(certificateId, tagId)) {
             throw new ControllerException(
                     String.format(RELATIONSHIP_NOT_FOUND, "certificateId=" + certificateId + ", tagId=" + tagId),
-                    ControllerErrorCode.TAG_NOT_FOUND
+                    WebErrorCode.TAG_NOT_FOUND
             );
         }
     }
