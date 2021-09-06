@@ -1,4 +1,4 @@
-package com.epam.esm.service.impl;
+package com.epam.esm.service;
 
 import com.epam.esm.service.dto.AbstractDTO;
 
