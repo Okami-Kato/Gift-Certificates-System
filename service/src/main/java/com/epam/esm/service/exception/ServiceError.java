@@ -1,7 +1,9 @@
 package com.epam.esm.service.exception;
 
-public enum ServiceErrorCode {
+public enum ServiceError {
     UNEXPECTED_ERROR,
+    CERTIFICATE_VALIDATION_FAILURE,
+    TAG_VALIDATION_FAILURE,
     DUPLICATE_TAG_NAME,
     BAD_KEY,
     DUPLICATE_CERTIFICATE_TAG,

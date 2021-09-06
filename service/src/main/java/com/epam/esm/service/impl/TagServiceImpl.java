@@ -46,8 +46,8 @@ public class TagServiceImpl implements TagService {
         try {
             result = tagDao.create(tagDtoMapper.toEntity(tag));
         } catch (DaoException e) {
-            if (e.getErrorCode().equals(DaoErrorCode.DUPLICATE_KEY))
-                throw new ServiceException(ServiceErrorCode.DUPLICATE_TAG_NAME);
+            if (e.getDaoError().equals(DaoError.DUPLICATE_KEY))
+                throw new ServiceException(ServiceError.DUPLICATE_TAG_NAME, e.getMessage());
         }
         return tagDtoMapper.toDto(result);
     }

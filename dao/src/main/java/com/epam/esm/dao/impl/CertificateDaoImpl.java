@@ -2,7 +2,7 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.AbstractDao;
 import com.epam.esm.dao.CertificateDao;
-import com.epam.esm.dao.exception.DaoErrorCode;
+import com.epam.esm.dao.exception.DaoError;
 import com.epam.esm.dao.exception.DaoException;
 import com.epam.esm.dao.mapper.CertificateMapper;
 import com.epam.esm.entity.Certificate;
@@ -62,7 +62,7 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
                 this.columns.add(columns.getString("COLUMN_NAME").toLowerCase(Locale.ROOT));
             }
         } catch (SQLException e) {
-            throw new DaoException(DaoErrorCode.DATABASE_ACCESS_ERROR, "Failed to populate list of columns");
+            throw new DaoException(DaoError.DATABASE_ACCESS_ERROR, "Failed to populate list of columns");
         }
     }
 
@@ -134,12 +134,12 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
             jdbcTemplate.update(ADD_TAG, certificateId, tagId);
         } catch (DuplicateKeyException e) {
             throw new DaoException(
-                    DaoErrorCode.DUPLICATE_KEY,
+                    DaoError.DUPLICATE_KEY,
                     String.format("Certificate (id=%s) already has tag (id=%s)", certificateId, tagId)
             );
         } catch (DataIntegrityViolationException e) {
             throw new DaoException(
-                    DaoErrorCode.CONSTRAIN_VIOLATION,
+                    DaoError.CONSTRAIN_VIOLATION,
                     String.format(
                             "Some of provided parameters (certificateId=%s, tagId=%s) don't reference real data",
                             certificateId, tagId)
@@ -190,7 +190,7 @@ public class CertificateDaoImpl extends AbstractDao implements CertificateDao {
         StringBuilder query = new StringBuilder(ORDER_BY);
         for (Sort.Order order : sort.getOrders()) {
             if (!columnExists(order.getProperty()))
-                throw new DaoException(DaoErrorCode.BAD_SORT_PROPERTIES, String.format("Property (%s) doesn't exist", order.getProperty()));
+                throw new DaoException(DaoError.BAD_SORT_PROPERTIES, String.format("Property (%s) doesn't exist", order.getProperty()));
             query.append(" ").append(order.getProperty()).append(" ");
             switch (order.getDirection()) {
                 case ASCENDING:

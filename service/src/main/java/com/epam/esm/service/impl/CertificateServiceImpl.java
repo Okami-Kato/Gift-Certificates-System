@@ -68,10 +68,10 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             return certificateDao.getAll(certificateFilter).stream().map(certificateDtoMapper::toDto).collect(Collectors.toList());
         } catch (DaoException e) {
-            if (e.getErrorCode().equals(DaoErrorCode.BAD_SORT_PROPERTIES))
-                throw new ServiceException(ServiceErrorCode.BAD_SORT_PROPERTY, e.getMessage());
+            if (e.getDaoError().equals(DaoError.BAD_SORT_PROPERTIES))
+                throw new ServiceException(ServiceError.BAD_SORT_PROPERTY, e.getMessage());
             else
-                throw new ServiceException(ServiceErrorCode.UNEXPECTED_ERROR, e.getMessage());
+                throw new ServiceException(ServiceError.UNEXPECTED_ERROR, e.getMessage());
         }
     }
 
@@ -85,10 +85,10 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             certificateDao.addTag(certificateId, tagId);
         } catch (DaoException e) {
-            if (e.getErrorCode().equals(DaoErrorCode.DUPLICATE_KEY)) {
-                throw new ServiceException(ServiceErrorCode.DUPLICATE_CERTIFICATE_TAG);
-            } else if (e.getErrorCode().equals(DaoErrorCode.CONSTRAIN_VIOLATION)) {
-                throw new ServiceException(ServiceErrorCode.BAD_KEY);
+            if (e.getDaoError().equals(DaoError.DUPLICATE_KEY)) {
+                throw new ServiceException(ServiceError.DUPLICATE_CERTIFICATE_TAG, e.getMessage());
+            } else if (e.getDaoError().equals(DaoError.CONSTRAIN_VIOLATION)) {
+                throw new ServiceException(ServiceError.BAD_KEY, e.getMessage());
             }
         }
     }

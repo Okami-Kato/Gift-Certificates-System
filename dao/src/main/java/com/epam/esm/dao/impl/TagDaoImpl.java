@@ -63,7 +63,7 @@ public class TagDaoImpl extends AbstractDao implements TagDao {
             }, keyHolder);
             tag.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         } catch (DuplicateKeyException e) {
-            throw new DaoException(DaoErrorCode.DUPLICATE_KEY, String.format("Tag (name=%s) already exists", tag.getName()));
+            throw new DaoException(DaoError.DUPLICATE_KEY, String.format("Tag (name=%s) already exists", tag.getName()));
         }
         return tag;
     }
