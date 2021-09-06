@@ -11,6 +11,7 @@ import com.epam.esm.util.Sort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -69,6 +70,7 @@ class CertificateDaoImplTest {
         assertTrue(certificateDao.idExists(generatedId));
         assertTrue(certificateDao.delete(generatedId));
         assertFalse(certificateDao.get(generatedId).isPresent());
+        assertFalse(certificateDao.delete(generatedId));
     }
 
     @Test
@@ -79,6 +81,9 @@ class CertificateDaoImplTest {
         Optional<Certificate> updatedCertificate = certificateDao.get(certificate.getId());
         assertTrue(updatedCertificate.isPresent());
         assertEquals(updatedCertificate.get(), certificate);
+        certificate.setDescription(null);
+        assertThrows(DataAccessException.class, () -> certificateDao.update(certificate));
+        certificate.setDescription("description1");
     }
 
     @Test
@@ -152,6 +157,11 @@ class CertificateDaoImplTest {
                         .withSort(Sort.by(Sort.Order.asc(DURATION_COLUMN)))
                         .build()
         ));
+        assertThrows(DaoException.class, () -> certificateDao.getAll(
+                CertificateFilter.newBuilder()
+                        .withSort(Sort.by(Sort.Order.asc("non-existing property")))
+                        .build()
+        ));
 
         Collections.reverse(orderByNameAsc);
         Collections.reverse(orderByDescriptionAsc);
@@ -197,6 +207,8 @@ class CertificateDaoImplTest {
         Certificate firstCertificate = certificateDao.create(FIRST_CERTIFICATE);
         Certificate secondCertificate = certificateDao.create(SECOND_CERTIFICATE);
         certificateDao.addTag(firstCertificate.getId(), firstTagId);
+        assertThrows(DaoException.class, () -> certificateDao.addTag(firstCertificate.getId(), firstTagId));
+        assertThrows(DaoException.class, () -> certificateDao.addTag(firstCertificate.getId() + 100, firstTagId + 100));
         certificateDao.addTag(firstCertificate.getId(), secondTagId);
         certificateDao.addTag(secondCertificate.getId(), firstTagId);
 
@@ -206,6 +218,8 @@ class CertificateDaoImplTest {
         assertEquals(Arrays.asList(firstCertificate, secondCertificate), allByTags);
 
         certificateDao.removeTag(secondCertificate.getId(), firstTagId);
+        assertFalse(certificateDao.removeTag(secondCertificate.getId(), firstTagId));
+
         allByTags = certificateDao.getAllByTags(firstTagId, secondTagId);
         assertEquals(1, allByTags.size());
         assertTrue(allByTags.contains(firstCertificate));

@@ -7,6 +7,9 @@ import com.epam.esm.service.dto.CertificateDTO;
 import com.epam.esm.service.dto.TagDTO;
 import com.epam.esm.service.dto.mapper.CertificateDtoMapper;
 import com.epam.esm.service.dto.mapper.DtoMapper;
+import com.epam.esm.service.exception.ServiceException;
+import com.epam.esm.service.validation.CertificateValidator;
+import com.epam.esm.service.validation.Validator;
 import com.epam.esm.util.CertificateFilter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -40,13 +44,14 @@ class CertificateServiceImplTest {
             .withLastUpdateDate(LocalDate.now())
             .build();
     private static final DtoMapper<Certificate, CertificateDTO> certificateDtoMapper = new CertificateDtoMapper();
+    private static final Validator<CertificateDTO> validator = new CertificateValidator();
     private static CertificateDao certificateDao;
     private static CertificateService certificateService;
 
     @BeforeAll
     static void init() {
         certificateDao = mock(CertificateDao.class);
-        certificateService = new CertificateServiceImpl(certificateDao, certificateDtoMapper);
+        certificateService = new CertificateServiceImpl(certificateDao, validator, certificateDtoMapper);
     }
 
     @Test
@@ -60,11 +65,14 @@ class CertificateServiceImplTest {
     @Test
     void get() {
         when(certificateDao.get(CERTIFICATE.getId())).thenReturn(Optional.of(certificateDtoMapper.toEntity(CERTIFICATE)));
+        when(certificateDao.get(CERTIFICATE.getId() + 1)).thenReturn(Optional.empty());
 
         Optional<CertificateDTO> retrievedCertificate = certificateService.get(CERTIFICATE.getId());
         assertTrue(retrievedCertificate.isPresent());
         assertEquals(CERTIFICATE, retrievedCertificate.get());
         verify(certificateDao, times(1)).get(CERTIFICATE.getId());
+
+        assertFalse(certificateService.get(CERTIFICATE.getId() + 1).isPresent());
     }
 
     @Test
@@ -95,15 +103,18 @@ class CertificateServiceImplTest {
         List<CertificateDTO> all = certificateService.getAll();
         assertEquals(all, list);
 
-        when(certificateDao.getAll(any(CertificateFilter.class))).thenReturn(list.stream().map(certificateDtoMapper::toEntity).collect(Collectors.toList()));
+        when(certificateDao.getAll(any(CertificateFilter.class)))
+                .thenReturn(list.stream().map(certificateDtoMapper::toEntity).collect(Collectors.toList()));
         all = certificateService.getAll(new CertificateFilter());
         assertEquals(all, list);
 
-        when(certificateDao.getAll(any(CertificateFilter.class))).thenReturn(list.stream().map(certificateDtoMapper::toEntity).collect(Collectors.toList()));
+        when(certificateDao.getAll(any(CertificateFilter.class)))
+                .thenReturn(list.stream().map(certificateDtoMapper::toEntity).collect(Collectors.toList()));
         all = certificateService.getAll(new CertificateFilter());
         assertEquals(all, list);
 
-        when(certificateDao.getAllByTags(any())).thenReturn(list.stream().map(certificateDtoMapper::toEntity).collect(Collectors.toList()));
+        when(certificateDao.getAllByTags(any()))
+                .thenReturn(list.stream().map(certificateDtoMapper::toEntity).collect(Collectors.toList()));
         all = certificateService.getAll(1, 2, 3);
         assertEquals(all, list);
     }
@@ -118,11 +129,14 @@ class CertificateServiceImplTest {
 
     @Test
     void update() {
-        when(certificateDao.update(any(Certificate.class))).thenAnswer(invocation -> (((Certificate) invocation.getArgument(0)).getId().equals(CERTIFICATE.getId())));
+        when(certificateDao.update(any(Certificate.class))).
+                thenAnswer(invocation -> (((Certificate) invocation.getArgument(0)).getId().equals(CERTIFICATE.getId())));
         assertTrue(certificateService.update(CERTIFICATE));
         verify(certificateDao, times(1)).update(certificateDtoMapper.toEntity(CERTIFICATE));
-        CertificateDTO certificate = CertificateDTO.newBuilder().withId(CERTIFICATE.getId() + 1).build();
-        assertFalse(certificateService.update(certificate));
+        LocalDate lastUpdateDate = CERTIFICATE.getLastUpdateDate();
+        CERTIFICATE.setLastUpdateDate(LocalDate.MIN);
+        assertThrows(ServiceException.class, () -> certificateService.update(CERTIFICATE));
+        CERTIFICATE.setLastUpdateDate(lastUpdateDate);
     }
 
     @Test

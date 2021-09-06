@@ -52,6 +52,7 @@ class TagDaoImplTest {
         assertTrue(tagDao.idExists(generatedId));
         assertTrue(tagDao.get(generatedId).isPresent());
         assertTrue(tagDao.delete(generatedId));
+        assertFalse(tagDao.delete(generatedId));
         assertFalse(tagDao.get(generatedId).isPresent());
     }
 
@@ -65,5 +66,6 @@ class TagDaoImplTest {
         certificateDao.addTag(certificateId, firstTag.getId());
         certificateDao.addTag(certificateId, secondTag.getId());
         assertEquals(Arrays.asList(firstTag, secondTag), tagDao.getAllByCertificateId(certificateId));
+        assertTrue(tagDao.getAllByCertificateId(certificateId + 1).isEmpty());
     }
 }
