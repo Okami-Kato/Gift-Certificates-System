@@ -1,6 +1,6 @@
 .gradle
 .idea
-
+gradle
 entity/build
 util/build
 dao/build
