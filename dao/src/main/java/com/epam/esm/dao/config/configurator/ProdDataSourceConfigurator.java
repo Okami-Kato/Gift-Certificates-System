@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Profile("prod")
-@PropertySource({"classpath:database-prod.properties", "classpath:database-credentials-prod.properties"})
+@PropertySource("classpath:database-prod.properties")
 public class ProdDataSourceConfigurator extends DataSourceConfigurator {
     @Autowired
     ProdDataSourceConfigurator(Environment environment) {

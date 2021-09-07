@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Profile("test")
-@PropertySource({"classpath:database-test.properties", "classpath:database-credentials-test.properties"})
+@PropertySource("classpath:database-test.properties")
 public class TestDataSourceConfigurator extends DataSourceConfigurator{
     @Autowired
     TestDataSourceConfigurator(Environment environment) {
