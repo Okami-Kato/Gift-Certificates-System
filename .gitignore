@@ -1,6 +1,8 @@
 .gradle
 .idea
 gradle
+gradlew
+gradlew.bat
 entity/build
 util/build
 dao/build
