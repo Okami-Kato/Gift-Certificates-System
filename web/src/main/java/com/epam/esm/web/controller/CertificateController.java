@@ -7,7 +7,7 @@ import com.epam.esm.service.exception.ServiceError;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.util.CertificateFilter;
 import com.epam.esm.web.exception.WebErrorCode;
-import com.epam.esm.web.exception.ControllerException;
+import com.epam.esm.web.exception.WebException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,7 +59,7 @@ public class CertificateController {
      *
      * @param certificateFilter the filter to be applied.
      * @return list of found certificates.
-     * @throws ControllerException if given filter's sort properties contain non-existent sort properties,
+     * @throws WebException if given filter's sort properties contain non-existent sort properties,
      *                             or if unexpected error occurred.
      */
     @GetMapping(value = "/certificates")
@@ -69,9 +69,9 @@ public class CertificateController {
                 return certificateService.getAll(certificateFilter);
             } catch (ServiceException e) {
                 if (e.getError().equals(ServiceError.BAD_SORT_PROPERTY)) {
-                    throw new ControllerException(e.getMessage(), WebErrorCode.BAD_SORT_PROPERTY);
+                    throw new WebException(e.getMessage(), WebErrorCode.BAD_SORT_PROPERTY);
                 } else {
-                    throw new ControllerException(e.getMessage(), WebErrorCode.SERVER_ERROR);
+                    throw new WebException(e.getMessage(), WebErrorCode.SERVER_ERROR);
                 }
             }
         } else {
@@ -84,7 +84,7 @@ public class CertificateController {
      *
      * @param certificate certificate to be created.
      * @return created certificate.
-     * @throws ControllerException if given certificate isn't valid.
+     * @throws WebException if given certificate isn't valid.
      */
     @PostMapping(value = "/certificates")
     @ResponseStatus(HttpStatus.CREATED)
@@ -96,10 +96,10 @@ public class CertificateController {
             return certificateService.create(certificate);
         } catch (ServiceException e) {
             if (e.getError().equals(ServiceError.CERTIFICATE_VALIDATION_FAILURE)) {
-                throw new ControllerException(e.getMessage(),
+                throw new WebException(e.getMessage(),
                         WebErrorCode.CERTIFICATE_VALIDATION_FAILURE, e.getArgs());
             } else {
-                throw new ControllerException(UNEXPECTED_ERROR, WebErrorCode.SERVER_ERROR);
+                throw new WebException(UNEXPECTED_ERROR, WebErrorCode.SERVER_ERROR);
             }
         }
     }
@@ -109,12 +109,12 @@ public class CertificateController {
      *
      * @param id id of desired certificate.
      * @return found certificate.
-     * @throws ControllerException if certificate wasn't found.
+     * @throws WebException if certificate wasn't found.
      */
     @GetMapping(value = "/certificates/{id}")
     public CertificateDTO getCertificate(@PathVariable int id) {
         Optional<CertificateDTO> certificate = certificateService.get(id);
-        return certificate.orElseThrow(() -> new ControllerException(
+        return certificate.orElseThrow(() -> new WebException(
                 String.format(RESOURCE_NOT_FOUND, "id=" + id),
                 WebErrorCode.CERTIFICATE_NOT_FOUND
         ));
@@ -124,13 +124,13 @@ public class CertificateController {
      * Deletes certificate with given id.
      *
      * @param id id of desired certificate.
-     * @throws ControllerException if certificate wasn't found.
+     * @throws WebException if certificate wasn't found.
      */
     @DeleteMapping(value = "/certificates/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCertificate(@PathVariable int id) {
         if (!certificateService.delete(id)) {
-            throw new ControllerException(
+            throw new WebException(
                     String.format(RESOURCE_NOT_FOUND, "id=" + id),
                     WebErrorCode.CERTIFICATE_NOT_FOUND
             );
@@ -143,14 +143,14 @@ public class CertificateController {
      * @param id    id of certificate to be updated
      * @param patch array of patch methods.
      * @return updated certificate.
-     * @throws ControllerException     if certificate wasn't found, if updated certificate isn't valid.
+     * @throws WebException     if certificate wasn't found, if updated certificate isn't valid.
      * @throws JsonPatchException      if failed to apply patch.
      * @throws JsonProcessingException if structural conversion failed.
      */
     @PatchMapping(path = "/certificates/{id}", consumes = "application/json-patch+json")
     public CertificateDTO updateCertificate(@PathVariable int id, @RequestBody JsonPatch patch) throws JsonPatchException, JsonProcessingException {
         CertificateDTO certificateDTO = certificateService.get(id).orElseThrow(
-                () -> new ControllerException(
+                () -> new WebException(
                         String.format(RESOURCE_NOT_FOUND, "id=" + id),
                         WebErrorCode.CERTIFICATE_NOT_FOUND
                 ));
@@ -160,10 +160,10 @@ public class CertificateController {
             certificateService.update(certificatePatched);
         } catch (ServiceException e) {
             if (e.getError().equals(ServiceError.CERTIFICATE_VALIDATION_FAILURE)) {
-                throw new ControllerException(e.getMessage(),
+                throw new WebException(e.getMessage(),
                         WebErrorCode.CERTIFICATE_VALIDATION_FAILURE, e.getArgs());
             } else {
-                throw new ControllerException(UNEXPECTED_ERROR, WebErrorCode.SERVER_ERROR);
+                throw new WebException(UNEXPECTED_ERROR, WebErrorCode.SERVER_ERROR);
             }
         }
         return certificatePatched;
@@ -179,13 +179,13 @@ public class CertificateController {
      *
      * @param id id of desired tag.
      * @return list of certificates.
-     * @throws ControllerException if tag wasn't found.
+     * @throws WebException if tag wasn't found.
      */
     @GetMapping(value = "/tags/{id}/certificates")
     public List<CertificateDTO> getCertificatesByTag(@PathVariable int id) {
         List<CertificateDTO> certificates = certificateService.getAll(id);
         if (certificates.isEmpty() && !tagService.idExists(id)) {
-            throw new ControllerException(
+            throw new WebException(
                     String.format(RESOURCE_NOT_FOUND, "id=" + id), WebErrorCode.TAG_NOT_FOUND
             );
         }
@@ -197,7 +197,7 @@ public class CertificateController {
      *
      * @param tagId         id of desired tag.
      * @param certificateId id of desired certificate.
-     * @throws ControllerException if relationship already exists, if tag or certificate wasn't found,
+     * @throws WebException if relationship already exists, if tag or certificate wasn't found,
      *                             or if unexpected error occurred.
      */
     @PutMapping(value = {"/tags/{tagId}/certificates/{certificateId}", "certificates/{certificateId}/tags/{tagId}"})
@@ -207,7 +207,7 @@ public class CertificateController {
             certificateService.addTag(certificateId, tagId);
         } catch (ServiceException e) {
             if (e.getError().equals(ServiceError.DUPLICATE_CERTIFICATE_TAG)) {
-                throw new ControllerException(
+                throw new WebException(
                         String.format(RELATIONSHIP_EXISTS, "certificateId=" + certificateId + ", tagId=" + tagId),
                         WebErrorCode.DUPLICATE_CERTIFICATE_TAG
                 );
@@ -219,9 +219,9 @@ public class CertificateController {
                 if (!tagService.idExists(tagId)) {
                     msg.append("tagId=").append(tagId);
                 }
-                throw new ControllerException(String.format(RESOURCE_NOT_FOUND, msg), WebErrorCode.ENTITY_NOT_FOUND);
+                throw new WebException(String.format(RESOURCE_NOT_FOUND, msg), WebErrorCode.ENTITY_NOT_FOUND);
             } else {
-                throw new ControllerException(UNEXPECTED_ERROR, WebErrorCode.SERVER_ERROR);
+                throw new WebException(UNEXPECTED_ERROR, WebErrorCode.SERVER_ERROR);
             }
         }
     }
@@ -231,13 +231,13 @@ public class CertificateController {
      *
      * @param tagId         id of desired tag.
      * @param certificateId id of desired certificate.
-     * @throws ControllerException if relationship wasn't found.
+     * @throws WebException if relationship wasn't found.
      */
     @DeleteMapping(value = {"/tags/{tagId}/certificates/{certificateId}", "certificates/{certificateId}/tags/{tagId}"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeCertificateFromTag(@PathVariable int tagId, @PathVariable int certificateId) {
         if (!certificateService.removeTag(certificateId, tagId)) {
-            throw new ControllerException(
+            throw new WebException(
                     String.format(RELATIONSHIP_NOT_FOUND, "certificateId=" + certificateId + ", tagId=" + tagId),
                     WebErrorCode.TAG_NOT_FOUND
             );

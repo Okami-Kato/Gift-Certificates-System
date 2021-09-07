@@ -2,7 +2,7 @@ package com.epam.esm.web.controller;
 
 import com.epam.esm.web.exception.WebError;
 import com.epam.esm.web.exception.WebErrorCode;
-import com.epam.esm.web.exception.ControllerException;
+import com.epam.esm.web.exception.WebException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatchException;
 import org.springframework.http.HttpHeaders;
@@ -17,8 +17,8 @@ import static com.epam.esm.web.exception.ErrorMessage.FAILED_TO_APPLY_PATCH;
 
 @ControllerAdvice
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler(value = {ControllerException.class})
-    protected ResponseEntity<Object> handleConflict(ControllerException ex, WebRequest request) {
+    @ExceptionHandler(value = {WebException.class})
+    protected ResponseEntity<Object> handleConflict(WebException ex, WebRequest request) {
         return handleExceptionInternal(ex, new WebError(ex), new HttpHeaders(), ex.getErrorCode().getStatus(), request);
     }
 

@@ -6,7 +6,7 @@ import com.epam.esm.service.dto.TagDTO;
 import com.epam.esm.service.exception.ServiceError;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.web.exception.WebErrorCode;
-import com.epam.esm.web.exception.ControllerException;
+import com.epam.esm.web.exception.WebException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -55,7 +55,7 @@ public class TagController {
      *
      * @param tag tag to be created.
      * @return created tag.
-     * @throws ControllerException if given tag isn't valid, if tag with the same name already exists,
+     * @throws WebException if given tag isn't valid, if tag with the same name already exists,
      *                             or if unexpected error occurred.
      */
     @PostMapping(value = "/tags")
@@ -65,11 +65,11 @@ public class TagController {
             return tagService.create(tag);
         } catch (ServiceException e) {
             if (e.getError().equals(ServiceError.DUPLICATE_TAG_NAME)) {
-                throw new ControllerException(e.getMessage(), WebErrorCode.DUPLICATE_TAG_NAME);
+                throw new WebException(e.getMessage(), WebErrorCode.DUPLICATE_TAG_NAME);
             } else if (e.getError().equals(ServiceError.TAG_VALIDATION_FAILURE)) {
-                throw new ControllerException(e.getMessage(), WebErrorCode.TAG_VALIDATION_FAILURE, e.getArgs());
+                throw new WebException(e.getMessage(), WebErrorCode.TAG_VALIDATION_FAILURE, e.getArgs());
             } else {
-                throw new ControllerException(UNEXPECTED_ERROR, WebErrorCode.SERVER_ERROR);
+                throw new WebException(UNEXPECTED_ERROR, WebErrorCode.SERVER_ERROR);
             }
         }
     }
@@ -79,12 +79,12 @@ public class TagController {
      *
      * @param id id of desired tag.
      * @return found tag.
-     * @throws ControllerException if tag wasn't found.
+     * @throws WebException if tag wasn't found.
      */
     @GetMapping(value = "/tags/{id}")
     public TagDTO getTag(@PathVariable int id) {
         Optional<TagDTO> tag = tagService.get(id);
-        return tag.orElseThrow(() -> new ControllerException(
+        return tag.orElseThrow(() -> new WebException(
                 String.format(RESOURCE_NOT_FOUND, "id=" + id),
                 WebErrorCode.TAG_NOT_FOUND
         ));
@@ -94,13 +94,13 @@ public class TagController {
      * Deletes tag with given id.
      *
      * @param id id of tag to be deleted
-     * @throws ControllerException if tag wasn't found.
+     * @throws WebException if tag wasn't found.
      */
     @DeleteMapping(value = "/tags/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTag(@PathVariable int id) {
         if (!tagService.delete(id)) {
-            throw new ControllerException(
+            throw new WebException(
                     String.format(RESOURCE_NOT_FOUND, "id=" + id),
                     WebErrorCode.TAG_NOT_FOUND
             );
@@ -112,13 +112,13 @@ public class TagController {
      *
      * @param id id of desired certificate.
      * @return list of tags.
-     * @throws ControllerException if certificate wasn't found
+     * @throws WebException if certificate wasn't found
      */
     @GetMapping(value = "/certificates/{id}/tags")
     public List<TagDTO> getCertificateTags(@PathVariable int id) {
         final List<TagDTO> tags = tagService.getAllByCertificateId(id);
         if (tags.isEmpty() && !certificateService.idExists(id)) {
-            throw new ControllerException(
+            throw new WebException(
                     String.format(RESOURCE_NOT_FOUND, "id=" + id), WebErrorCode.CERTIFICATE_NOT_FOUND
             );
         }

@@ -10,7 +10,7 @@ public class WebError {
         this.errorCode = errorCode.getCode();
     }
 
-    public WebError(ControllerException e){
+    public WebError(WebException e){
         this.errorMessage = e.getMessage();
         this.errorCode = e.getErrorCode().getCode();
         this.args = e.getArgs();
