@@ -1,3 +1,15 @@
 .gradle
 .idea
-build
+gradle
+gradlew
+gradlew.bat
+entity/build
+util/build
+dao/build
+service/build
+web/build
+dao/src/main/resources/data
+dao/src/test/resources/data
+/dao/src/main/resources/database-dev.properties
+/dao/src/main/resources/database-prod.properties
+/dao/src/test/resources/database-test.properties
